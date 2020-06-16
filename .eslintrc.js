@@ -22,5 +22,6 @@ module.exports = {
     'interface-name-prefix': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
     'import/no-cycle': 'off',
+    'no-lonely-if': 'off',
   },
 };

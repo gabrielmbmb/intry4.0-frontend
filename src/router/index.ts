@@ -1,21 +1,18 @@
 import Vue from 'vue';
-import VueRouter, { RouteConfig } from 'vue-router';
-
-// Vuex store
-import store from '@/store/index';
+import VueRouter, { RouteConfig, Route } from 'vue-router';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 import { AuthModule } from '@/store/modules/auth';
-
-// Views
-import Home from '../views/Home.vue';
+import { PermissionModule } from '@/store/modules/permission';
+import { Message } from 'element-ui';
 
 Vue.use(VueRouter);
 
-const routes: Array<RouteConfig> = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home,
-  },
+NProgress.configure({ showSpinner: false });
+
+const whiteList = ['/login', '/auth-redirect'];
+
+export const constRoutes: Array<RouteConfig> = [
   {
     path: '/login',
     name: 'Login',
@@ -24,28 +21,82 @@ const routes: Array<RouteConfig> = [
   {
     path: '/about',
     name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    meta: {
+      title: 'About',
+    },
+    component: () => import('../views/About.vue'),
   },
 ];
 
-const router = new VueRouter({
-  routes,
+export const dynamicRoutes: Array<RouteConfig> = [
+  {
+    path: '/',
+    name: 'Home',
+    meta: {
+      title: 'Home',
+    },
+    component: () => import('../views/Home.vue'),
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    meta: {
+      title: 'Users',
+      roles: ['superuser'],
+    },
+    component: () => import('../views/Users.vue'),
+  },
+];
+
+const router = new VueRouter({ routes: constRoutes });
+
+router.beforeEach(async (to, _, next) => {
+  // Progress bar
+  NProgress.start();
+
+  // Check that user is logged in
+  if (AuthModule.accessToken) {
+    if (to.path === '/login') {
+      // User is already logged in, redirect it to home
+      next({ path: '/' });
+      NProgress.done();
+    } else {
+      // Check if user has obtained its roles
+      if (AuthModule.roles.length === 0) {
+        try {
+          // Get user info
+          await AuthModule.getUserInfo();
+          const { roles } = AuthModule;
+          // Get routes enabled for the user roles
+          PermissionModule.generateRoutes(roles);
+          router.addRoutes(PermissionModule.dynamicRoutes);
+          next({ ...to, replace: true });
+        } catch (err) {
+          // Remove token and redirect to login page
+          AuthModule.resetToken();
+          Message.error(err || 'An error ocurred');
+          next(`/login?redirect=${to.path}`);
+          NProgress.done();
+        }
+      } else {
+        next();
+      }
+    }
+  } else {
+    if (whiteList.indexOf(to.path) !== -1) {
+      next();
+    } else {
+      next(`/login?redirect=${to.path}`);
+      NProgress.done();
+    }
+  }
 });
 
-router.beforeEach((to, from, next) => {
-  if (to.name !== 'Login' && AuthModule.accessToken === '') {
-    next('/login');
-  }
+router.afterEach((to: Route) => {
+  NProgress.done();
 
-  if (to.name !== 'Login' && AuthModule.accessToken !== '') {
-    next('/login');
-  }
-
-  next();
+  // set page title
+  document.title = `${to.meta.title} - InTry 4.0`;
 });
 
 export default router;
