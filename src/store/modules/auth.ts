@@ -15,8 +15,7 @@ export interface IAuthState {
   expiresIn: number;
   name: string;
   email: string;
-  isStaff: boolean;
-  isSuperUser: boolean;
+  roles: string[];
 }
 
 @Module({ dynamic: true, store, name: 'auth' })
@@ -29,9 +28,7 @@ class Auth extends VuexModule implements IAuthState {
 
   public email = '';
 
-  public isStaff = false;
-
-  public isSuperUser = false;
+  public roles: string[] = [];
 
   @Mutation
   public SET_TOKEN(token: string) {
@@ -41,6 +38,21 @@ class Auth extends VuexModule implements IAuthState {
   @Mutation
   public SET_EXPIRES_IN(expiresIn: number) {
     this.expiresIn = expiresIn;
+  }
+
+  @Mutation
+  public SET_NAME(name: string) {
+    this.name = name;
+  }
+
+  @Mutation
+  public SET_EMAIL(email: string) {
+    this.email = email;
+  }
+
+  @Mutation
+  public SET_ROLES(roles: string[]) {
+    this.roles = roles;
   }
 
   @Action({ rawError: true })
@@ -60,11 +72,40 @@ class Auth extends VuexModule implements IAuthState {
     if (this.accessToken === '') {
       throw Error('Logout: token is undefined!');
     }
-
     await backendAPI.doLogout(this.accessToken);
     removeToken();
     this.SET_TOKEN('');
     this.SET_EXPIRES_IN(0);
+  }
+
+  @Action({ rawError: true })
+  public async getUserInfo() {
+    const { data } = (await backendAPI.getUserInfo(
+      this.accessToken
+    )) as AxiosResponse;
+
+    this.SET_NAME(data.name);
+    this.SET_EMAIL(data.email);
+
+    const roles = [];
+    if (data.is_superuser) {
+      roles.push('superuser');
+    }
+
+    if (data.is_staff) {
+      roles.push('staff');
+    }
+
+    roles.push('normal');
+
+    this.SET_ROLES(roles);
+  }
+
+  @Action
+  public resetToken() {
+    removeToken();
+    this.SET_TOKEN('');
+    this.SET_ROLES([]);
   }
 }
 

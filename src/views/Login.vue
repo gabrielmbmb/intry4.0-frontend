@@ -27,7 +27,7 @@ div.container
               type="primary"
               @click="onClickLogin"
               :disabled="!email && !password"
-              v-loading="isLogin"
+              :loading="isLogin"
             ) Login
 </template>
 
@@ -35,9 +35,6 @@ div.container
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { AuthModule } from '@/store/modules/auth';
-
-// API
-import backendAPI from '@/api/backend.service';
 
 @Component
 export default class Login extends Vue {
@@ -54,7 +51,7 @@ export default class Login extends Vue {
       password: this.password,
     });
     this.isLogin = false;
-    this.$router.push('/home');
+    this.$router.push('/');
   }
 }
 </script>
