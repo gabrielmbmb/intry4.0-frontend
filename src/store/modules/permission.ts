@@ -7,7 +7,7 @@ import {
 } from 'vuex-module-decorators';
 import store from '@/store';
 import { constRoutes, dynamicRoutes } from '@/router';
-import { RouteConfig, Route } from 'vue-router';
+import { RouteConfig } from 'vue-router';
 
 const hasPermission = (roles: string[], route: RouteConfig) => {
   if (route.meta && route.meta.roles) {
@@ -43,7 +43,7 @@ class Permission extends VuexModule implements IPermissionsState {
   public dynamicRoutes: RouteConfig[] = [];
 
   @Mutation
-  public SET_ROUTES(routes: RouteConfig[]) {
+  private SET_ROUTES(routes: RouteConfig[]) {
     this.routes = [...constRoutes, ...routes];
     this.dynamicRoutes = routes;
   }
@@ -58,7 +58,6 @@ class Permission extends VuexModule implements IPermissionsState {
     }
 
     this.SET_ROUTES(accessedRoutes);
-    console.log(this.routes);
   }
 }
 
