@@ -59,6 +59,88 @@ class BackendService {
         .catch((err: AxiosError) => reject(err));
     });
   }
+
+  public getUsers(token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/users/`, { headers })
+        .then((res: AxiosResponse) => resolve(res))
+        .catch((err: AxiosError) => reject(err));
+    });
+  }
+
+  public createUser(
+    user: {
+      email: string;
+      username: string;
+      name: string;
+      lastname: string;
+      password: string;
+      password2: string;
+    },
+    token: string
+  ) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .post(`${BASE_URL}/api/v1/users/`, user, { headers })
+        .then((res: AxiosResponse) => resolve(res))
+        .catch((err: AxiosError) => reject(err));
+    });
+  }
+
+  public updateUser(payload: object, id: number, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .patch(`${BASE_URL}/api/v1/users/${id}/`, payload, { headers })
+        .then((res: AxiosResponse) => resolve(res))
+        .catch((err: AxiosError) => reject(err));
+    });
+  }
+
+  public updatePassword(
+    passwords: { old_password: string; password: string; password2: string },
+    token: string
+  ) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .post(`${BASE_URL}/api/v1/users/update_password/`, passwords, {
+          headers,
+        })
+        .then((res: AxiosResponse) => resolve(res))
+        .catch((err: AxiosError) => reject(err));
+    });
+  }
+
+  public deleteUser(id: number, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .delete(`${BASE_URL}/api/v1/users/${id}/`, {
+          headers,
+        })
+        .then((res: AxiosResponse) => resolve(res))
+        .catch((err: AxiosError) => reject(err));
+    });
+  }
 }
 
 export default new BackendService();

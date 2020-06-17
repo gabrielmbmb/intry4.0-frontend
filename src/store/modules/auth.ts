@@ -31,27 +31,27 @@ class Auth extends VuexModule implements IAuthState {
   public roles: string[] = [];
 
   @Mutation
-  public SET_TOKEN(token: string) {
+  private SET_TOKEN(token: string) {
     this.accessToken = token;
   }
 
   @Mutation
-  public SET_EXPIRES_IN(expiresIn: number) {
+  private SET_EXPIRES_IN(expiresIn: number) {
     this.expiresIn = expiresIn;
   }
 
   @Mutation
-  public SET_NAME(name: string) {
+  private SET_NAME(name: string) {
     this.name = name;
   }
 
   @Mutation
-  public SET_EMAIL(email: string) {
+  private SET_EMAIL(email: string) {
     this.email = email;
   }
 
   @Mutation
-  public SET_ROLES(roles: string[]) {
+  private SET_ROLES(roles: string[]) {
     this.roles = roles;
   }
 
@@ -76,6 +76,7 @@ class Auth extends VuexModule implements IAuthState {
     removeToken();
     this.SET_TOKEN('');
     this.SET_EXPIRES_IN(0);
+    this.SET_ROLES([]);
   }
 
   @Action({ rawError: true })

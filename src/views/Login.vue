@@ -1,11 +1,10 @@
 <template lang="pug">
-div.container
+div
   vue-particles(color="#f64c72" :particlesNumber="150")
   div.container-login
     div.column.column-logo
       div.column-content
-        img(src="@/assets/logo-login.png" style="width: 240px;")
-        p CAMBIAR EL LOGO IMPORTANTE XD
+        img(src="@/assets/logo-intry.png" style="width: 500px;")
     div.column.column-login
       div.column-content
         el-form
@@ -29,6 +28,7 @@ div.container
               :disabled="!email && !password"
               :loading="isLogin"
             ) Login
+            p(:hidden="haveError").bad-login Wrong login credentials
 </template>
 
 <script lang="ts">
@@ -44,21 +44,25 @@ export default class Login extends Vue {
 
   public isLogin = false;
 
+  public haveError = true;
+
   public async onClickLogin() {
     this.isLogin = true;
-    await AuthModule.login({
-      email: this.email,
-      password: this.password,
-    });
+    try {
+      await AuthModule.login({
+        email: this.email,
+        password: this.password,
+      });
+    } catch {
+      this.haveError = false;
+    }
     this.isLogin = false;
     this.$router.push('/');
   }
 }
 </script>
 
-<style lang="less" scoped>
-@import '@/assets/css/colors.less';
-
+<style lang="scss" scoped>
 .container {
   height: 100vh;
   display: flex;
@@ -66,9 +70,10 @@ export default class Login extends Vue {
 }
 
 .container-login {
-  width: 40%;
-  align-self: center;
-  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
 }
 
 .column {
@@ -81,7 +86,7 @@ export default class Login extends Vue {
 
 .column-logo {
   width: 45%;
-  background-color: @tertiary;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .column-login {
@@ -92,13 +97,14 @@ export default class Login extends Vue {
   align-self: center;
 }
 
+.bad-login {
+  color: red;
+}
+
 #particles-js {
   position: absolute;
-  background: @primary;
-  left: 0;
-  right: 0;
-  top: -80px;
-  bottom: 0;
-  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: $primary;
 }
 </style>
