@@ -188,7 +188,7 @@ router.beforeEach(async (to, _, next) => {
           // Get routes enabled for the user roles
           PermissionModule.generateRoutes(roles);
           router.addRoutes(PermissionModule.dynamicRoutes);
-          next({ ...to, replace: true });
+          next({ path: to.path, replace: true });
         } catch (err) {
           // Remove token and redirect to login page
           AuthModule.resetToken();
