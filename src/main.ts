@@ -1,3 +1,6 @@
+// This Vue app was inspired in the design of this really great example: https://github.com/Armour/vue-typescript-admin-template
+// and developed by Gabriel Martín Blázquez <gmartin_b@usal.es>
+
 import Vue from 'vue';
 import Element from 'element-ui';
 import locale from 'element-ui/lib/locale/lang/en';
