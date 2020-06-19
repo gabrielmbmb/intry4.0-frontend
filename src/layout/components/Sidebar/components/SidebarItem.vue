@@ -13,7 +13,8 @@
           :class="{'submenu-title-noDropdown': isFirstLevel}"
         )
           svg-icon(
-            name="hamburger"
+            v-if="onlyOneChild.meta.icon"
+            :name="onlyOneChild.meta.icon"
             width="20"
             height="20"
           )
@@ -28,7 +29,8 @@
     )
       template(slot="title")
         svg-icon(
-          name="hamburger"
+          v-if="item.meta.icon"
+          :name="item.meta.icon"
           width="20"
           height="20"
         )

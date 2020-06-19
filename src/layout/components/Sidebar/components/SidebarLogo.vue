@@ -7,10 +7,10 @@
         class="sidebar-logo-link"
         to="/"
       >
-        <img src="favicon.ico" class="sidebar-logo" />
+        <img src="favicon.png" class="sidebar-logo" />
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img src="favicon.ico" class="sidebar-logo" />
+        <img src="favicon.png" class="sidebar-logo" />
         <h1 class="sidebar-title">{{ title }}</h1>
       </router-link>
     </transition>

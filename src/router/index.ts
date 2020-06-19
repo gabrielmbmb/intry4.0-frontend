@@ -21,7 +21,8 @@ export const constRoutes: Array<RouteConfig> = [
       hidden: true,
       title: 'Login',
     },
-    component: () => import('../views/Login.vue'),
+    component: () =>
+      import(/* webpackChunkName: "login" */ '../views/Login.vue'),
   },
   {
     path: '/about',
@@ -30,7 +31,8 @@ export const constRoutes: Array<RouteConfig> = [
       title: 'About',
       hidden: true,
     },
-    component: () => import('../views/About.vue'),
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/About.vue'),
   },
 ];
 
@@ -45,8 +47,10 @@ export const dynamicRoutes: Array<RouteConfig> = [
         name: 'Home',
         meta: {
           title: 'Home',
+          icon: 'home',
         },
-        component: () => import('../views/Home.vue'),
+        component: () =>
+          import(/* webpackChunkName: "home" */ '../views/Home.vue'),
       },
     ],
   },
@@ -57,6 +61,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
     meta: {
       title: 'Users',
       roles: ['superuser'],
+      icon: 'user',
     },
     children: [
       {
@@ -65,7 +70,8 @@ export const dynamicRoutes: Array<RouteConfig> = [
         meta: {
           title: 'Users',
         },
-        component: () => import('../views/Users/Users.vue'),
+        component: () =>
+          import(/* webpackChunkName: "users" */ '../views/Users/Users.vue'),
       },
       {
         path: 'new',
@@ -73,7 +79,8 @@ export const dynamicRoutes: Array<RouteConfig> = [
         meta: {
           title: 'New user',
         },
-        component: () => import('../views/Users/New.vue'),
+        component: () =>
+          import(/* webpackChunkName: "users-new" */ '../views/Users/New.vue'),
       },
     ],
   },
@@ -84,6 +91,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
     meta: {
       title: 'Models',
       roles: ['staff'],
+      icon: 'brain',
     },
     children: [
       {
@@ -93,7 +101,8 @@ export const dynamicRoutes: Array<RouteConfig> = [
           title: 'Models',
           roles: ['staff'],
         },
-        component: () => import('../views/Models/Models.vue'),
+        component: () =>
+          import(/* webpackChunkName: "models" */ '../views/Models/Models.vue'),
       },
       {
         path: 'new',
@@ -102,7 +111,36 @@ export const dynamicRoutes: Array<RouteConfig> = [
           title: 'New model',
           roles: ['staff'],
         },
-        component: () => import('../views/Models/New.vue'),
+        component: () =>
+          import(
+            /* webpackChunkName: "models-new" */ '../views/Models/New.vue'
+          ),
+      },
+      {
+        path: ':id',
+        name: 'Model',
+        meta: {
+          title: 'Model',
+          roles: ['staff'],
+          hidden: true,
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "models-model" */ '../views/Models/Model.vue'
+          ),
+      },
+      {
+        path: 'train/:id',
+        name: 'Train model',
+        meta: {
+          title: 'Train model',
+          roles: ['staff'],
+          hidden: true,
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "models-model" */ '../views/Models/Train.vue'
+          ),
       },
     ],
   },
@@ -121,7 +159,8 @@ export const dynamicRoutes: Array<RouteConfig> = [
           title: 'Profile',
           hidden: true,
         },
-        component: () => import('../views/Profile.vue'),
+        component: () =>
+          import(/* webpackChunkName: "profile" */ '../views/Profile.vue'),
       },
     ],
   },

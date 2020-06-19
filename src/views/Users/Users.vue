@@ -64,6 +64,7 @@ div.app-container
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import { AuthModule } from '@/store/modules/auth';
+import EventBus from '@/utils/eventBus';
 import backendAPI from '@/api/backend.service';
 import { AxiosResponse } from 'axios';
 
@@ -81,6 +82,7 @@ export default class Users extends Vue {
 
   public mounted() {
     this.getUsers();
+    EventBus.$on('update-users', () => this.getUsers());
   }
 
   public getUsers() {
