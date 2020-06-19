@@ -141,6 +141,117 @@ class BackendService {
         .catch((err: AxiosError) => reject(err));
     });
   }
+
+  public getDatamodels(token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/datamodels/`, { headers })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public getDatamodel(id: string, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/datamodels/${id}/`, { headers })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public deployDatamodel(id: string, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .post(`${BASE_URL}/api/v1/datamodels/${id}/deploy/`, undefined, {
+          headers,
+        })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public trainDatamodel(id: string, payload: any, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .post(`${BASE_URL}/api/v1/datamodels/${id}/train/`, payload, {
+          headers,
+        })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public trainDatamodelWithCSV(id: string, payload: any, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      };
+
+      axios
+        .put(`${BASE_URL}/api/v1/datamodels/${id}/train/csv/`, payload, {
+          headers,
+        })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public getTaskStatus(id: string, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/datamodels/${id}/task_status/`, {
+          headers,
+        })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
 }
 
 export default new BackendService();

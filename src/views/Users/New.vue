@@ -56,6 +56,12 @@
           type="password"
           v-model="user.password2"
         )
+      //- el-form-item(
+      //-   prop="is_staff"
+      //-   label="Staff"
+      //-   :required="true"
+      //- )
+      //-   el-checkbox(label="true") Yes
       el-form-item
         p.error-msg {{  }}
       el-form-item
@@ -67,6 +73,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
+import EventBus from '@/utils/eventBus';
 import backendService from '../../api/backend.service';
 import { AuthModule } from '../../store/modules/auth';
 
@@ -79,6 +86,7 @@ export default class New extends Vue {
     lastname: string;
     password: string;
     password2: string;
+    is_staff: boolean;
   } = {
     email: '',
     username: '',
@@ -86,6 +94,7 @@ export default class New extends Vue {
     lastname: '',
     password: '',
     password2: '',
+    is_staff: false,
   };
 
   public errorMsg = '';
@@ -116,8 +125,11 @@ export default class New extends Vue {
               message: `The user ${this.user.username} has been created`,
               type: 'success',
             });
+            (this.$refs.newUserForm as any).resetFields();
+            EventBus.$emit('update-users');
+            this.$router.push('index');
           })
-          .catch((err) => {
+          .catch(() => {
             this.errorMsg = 'An error has ocurred!';
           });
       }
