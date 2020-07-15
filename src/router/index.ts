@@ -58,6 +58,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
     path: '/users',
     name: 'Users',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       title: 'Users',
       roles: ['superuser'],
@@ -69,6 +70,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
         name: 'Users',
         meta: {
           title: 'Users',
+          roles: ['superuser'],
         },
         component: () =>
           import(/* webpackChunkName: "users" */ '../views/Users/Users.vue'),
@@ -78,6 +80,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
         name: 'New user',
         meta: {
           title: 'New user',
+          roles: ['superuser'],
         },
         component: () =>
           import(/* webpackChunkName: "users-new" */ '../views/Users/New.vue'),
@@ -88,6 +91,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
     path: '/models',
     name: 'Models',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       title: 'Models',
       roles: ['staff'],
@@ -103,6 +107,21 @@ export const dynamicRoutes: Array<RouteConfig> = [
         },
         component: () =>
           import(/* webpackChunkName: "models" */ '../views/Models/Models.vue'),
+        children: [
+          {
+            path: '/models/:id/detail',
+            name: 'Model',
+            meta: {
+              title: 'Model',
+              roles: ['staff'],
+              hidden: true,
+            },
+            component: () =>
+              import(
+                /* webpackChunkName: "models-model" */ '../views/Models/Model.vue'
+              ),
+          },
+        ],
       },
       {
         path: 'new',
@@ -114,19 +133,6 @@ export const dynamicRoutes: Array<RouteConfig> = [
         component: () =>
           import(
             /* webpackChunkName: "models-new" */ '../views/Models/New.vue'
-          ),
-      },
-      {
-        path: ':id',
-        name: 'Model',
-        meta: {
-          title: 'Model',
-          roles: ['staff'],
-          hidden: true,
-        },
-        component: () =>
-          import(
-            /* webpackChunkName: "models-model" */ '../views/Models/Model.vue'
           ),
       },
       {
@@ -164,9 +170,33 @@ export const dynamicRoutes: Array<RouteConfig> = [
       },
     ],
   },
+  {
+    path: '/grafana',
+    name: 'Grafana',
+    beforeEnter: () => {
+      window.location.href = 'https://grafana.intry.gabrielmb.com';
+    },
+    meta: {
+      title: 'Grafana',
+      icon: 'grafana',
+    },
+  },
 ];
 
-const router = new VueRouter({ routes: constRoutes });
+const createRouter = () =>
+  new VueRouter({
+    scrollBehavior: (to, from, savedPosition) => {
+      if (savedPosition) {
+        return savedPosition;
+      }
+
+      return { x: 0, y: 0 };
+    },
+    base: '',
+    routes: constRoutes,
+  });
+
+const router = createRouter();
 
 router.beforeEach(async (to, _, next) => {
   // Progress bar
@@ -216,5 +246,10 @@ router.afterEach((to: Route) => {
   // set page title
   document.title = `${to.meta.title} - InTry 4.0`;
 });
+
+export function resetRouter() {
+  const newRouter = createRouter();
+  (router as any).matcher = (newRouter as any).matcher;
+}
 
 export default router;
