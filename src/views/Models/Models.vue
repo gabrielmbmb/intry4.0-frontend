@@ -1,5 +1,6 @@
 <template lang="pug">
 div.app-container
+  router-view
   h2 Anomaly Detection Models
   el-row(:gutter="20")
     el-col(:span="24")
@@ -32,6 +33,8 @@ div.app-container
           label="Date trained"
           width="220"
         )
+          template(slot-scope="scope")
+            p {{ scope.row.date_trained ? scope.row.date_trained : 'No training date' }}
         el-table-column(
           prop="is_active"
           label="Active"
@@ -44,16 +47,22 @@ div.app-container
           label="Date deployed"
           width="220"
         )
+          template(slot-scope="scope")
+            p {{ scope.row.date_deployed ? scope.row.date_deployed : 'No deploying date' }}
         el-table-column(
           prop="num_predictions"
           label="Num. of predictions"
+          :show-overflow-tooltip="true"
+          width="160"
         )
         el-table-column(
           prop="training_progress"
           label="Training progress"
         )
           template(slot-scope="scope")
-            div(v-if="Object.keys(trainProgress[scope.row.id]).length === 0")
+            div(v-if="trainProgress[scope.row.id] === null")
+              p No training status
+            div(v-else-if="Object.keys(trainProgress[scope.row.id]).length === 0")
               p Loading...
             div(v-else)
               el-progress(:percentage="trainProgress[scope.row.id].current")
@@ -65,6 +74,7 @@ div.app-container
             el-button(
               size="mini"
               @click="deployDatamodel(scope.row)"
+              :disabled="scope.row.is_training || !scope.row.trained"
             ) {{ scope.row.deployed ? 'Set unactive' : 'Set active' }}
             el-button(
               size="mini"
@@ -95,6 +105,8 @@ import EventBus from '@/utils/eventBus';
 import { AxiosResponse } from 'axios';
 import { AuthModule } from '../../store/modules/auth';
 
+const MODEL_TRAIN_STATE_REFRESH_RATE = 2000;
+
 @Component
 export default class Models extends Vue {
   public datamodels: { [key: string]: any }[] = [];
@@ -116,15 +128,19 @@ export default class Models extends Vue {
         this.datamodels = data;
 
         this.datamodels.forEach((datamodel) => {
-          this.trainProgress[datamodel.id] = {};
-          setInterval(() => {
-            if (
-              Object.keys(this.trainProgress[datamodel.id]).length === 0 ||
-              this.trainProgress[datamodel.id].state === 'PROGRESS'
-            ) {
-              this.getTaskStatus(datamodel.id);
-            }
-          }, 5000);
+          if (datamodel.task_status) {
+            this.trainProgress[datamodel.id] = {};
+            setInterval(() => {
+              if (
+                Object.keys(this.trainProgress[datamodel.id]).length === 0 ||
+                this.trainProgress[datamodel.id].state === 'PROGRESS'
+              ) {
+                this.getTaskStatus(datamodel.id);
+              }
+            }, MODEL_TRAIN_STATE_REFRESH_RATE);
+          } else {
+            this.trainProgress[datamodel.id] = null;
+          }
         });
       })
       .catch((err) => {
@@ -147,7 +163,7 @@ export default class Models extends Vue {
 
   public onRowClick(datamodel: any, column: any) {
     if (column.property !== 'buttons') {
-      this.$router.push(`/models/${datamodel.id}`);
+      this.$router.push({ path: `/models/${datamodel.id}/detail` });
     }
   }
 
@@ -160,8 +176,17 @@ export default class Models extends Vue {
       .catch((err) => console.log(err));
   }
 
-  public deleteDatamodel() {
-    // j
+  public deleteDatamodel(datamodel: any) {
+    backendService
+      .deleteDatamodel(datamodel.id, AuthModule.accessToken)
+      .then(() => {
+        this.getDatamodels();
+        this.$notify({
+          title: 'Datamodel removed',
+          message: `The datamodel ${datamodel.name} has been removed`,
+          type: 'success',
+        });
+      });
   }
 
   public trainModel(datamodel: any) {

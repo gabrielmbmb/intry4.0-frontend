@@ -214,6 +214,23 @@ class BackendService {
     });
   }
 
+  public deleteDatamodel(id: string, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .delete(`${BASE_URL}/api/v1/datamodels/${id}`, { headers })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
   public trainDatamodelWithCSV(id: string, payload: any, token: string) {
     return new Promise((resolve, reject) => {
       const headers = {
