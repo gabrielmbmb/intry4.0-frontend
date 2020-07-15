@@ -9,6 +9,7 @@ import store from '@/store';
 import backendAPI from '@/api/backend.service';
 import { AxiosResponse } from 'axios';
 import { getToken, setToken, removeToken } from '@/utils/cookies';
+import { resetRouter } from '@/router';
 
 export interface IAuthState {
   accessToken: string;
@@ -74,6 +75,7 @@ class Auth extends VuexModule implements IAuthState {
     }
     await backendAPI.doLogout(this.accessToken);
     removeToken();
+    resetRouter();
     this.SET_TOKEN('');
     this.SET_EXPIRES_IN(0);
     this.SET_ROLES([]);
