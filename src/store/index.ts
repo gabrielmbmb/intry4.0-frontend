@@ -12,4 +12,5 @@ export interface IRootState {
   app: IAppState;
 }
 
+// Empty store first, register dinamically all modules later.
 export default new Vuex.Store<IRootState>({});

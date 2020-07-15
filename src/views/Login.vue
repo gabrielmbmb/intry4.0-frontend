@@ -70,6 +70,7 @@ export default class Login extends Vue {
 }
 
 .container-login {
+  min-width: 800px;
   position: absolute;
   top: 50%;
   right: 50%;
