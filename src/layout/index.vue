@@ -90,6 +90,5 @@ export default class extends Vue {
 .fixed-header + .app-main {
   padding-top: 50px;
   height: 100vh;
-  overflow: auto;
 }
 </style>
