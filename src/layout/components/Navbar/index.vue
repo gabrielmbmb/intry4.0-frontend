@@ -4,6 +4,7 @@
       :is-active="sidebar.opened"
       @toggleClick="toggleSideBar"
     ).hamburger-container
+    breadcrumb.breadcrumb-container
     div.right-menu
       el-dropdown(trigger="click").right-menu-item.hover-effect
         div
@@ -22,12 +23,14 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import Hamburger from '@/components/Hamburger/index.vue';
+import Breadcrumb from '@/components/Breadcrumb/index.vue';
 import { AppModule } from '@/store/modules/app';
 import { AuthModule } from '@/store/modules/auth';
 
 @Component({
   components: {
     Hamburger,
+    Breadcrumb,
   },
 })
 export default class extends Vue {
@@ -65,6 +68,10 @@ export default class extends Vue {
     &:hover {
       background: rgba(0, 0, 0, 0.025);
     }
+  }
+
+  .breadcrumb-container {
+    float: left;
   }
 
   .right-menu {
