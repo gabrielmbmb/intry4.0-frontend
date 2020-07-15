@@ -41,6 +41,7 @@
       el-form-item(
         prop="password"
         label="Password"
+        :min="8"
         :required="true"
       )
         el-input(
@@ -50,22 +51,27 @@
       el-form-item(
         prop="password2"
         label="Repeat password"
+        :min="8"
         :required="true"
       )
         el-input(
           type="password"
           v-model="user.password2"
         )
-      //- el-form-item(
-      //-   prop="is_staff"
-      //-   label="Staff"
-      //-   :required="true"
-      //- )
-      //-   el-checkbox(label="true") Yes
+      el-form-item(
+        prop="is_staff"
+        label="Staff"
+        :required="true"
+      )
+        el-checkbox(
+          v-model="user.is_staff"
+          label="true"
+        ) Yes
       el-form-item
         p.error-msg {{  }}
       el-form-item
         el-button(
+          :loading="isUserBeingCreated"
           @click="newUser"
         ) Create new user
 </template>
@@ -99,7 +105,14 @@ export default class New extends Vue {
 
   public errorMsg = '';
 
+  public isUserBeingCreated = false;
+
   public formValidationRules = {
+    password: {
+      min: 8,
+      message: 'The password must be at least 8 characters!',
+      trigger: 'blur',
+    },
     password2: {
       validator: this.validatePassword,
       trigger: 'blur',
@@ -115,11 +128,13 @@ export default class New extends Vue {
   }
 
   public newUser() {
+    this.isUserBeingCreated = true;
     (this.$refs.newUserForm as any).validate((valid: boolean) => {
       if (valid) {
         backendService
           .createUser(this.user, AuthModule.accessToken)
           .then(() => {
+            this.isUserBeingCreated = false;
             this.$notify({
               title: 'New user has been created',
               message: `The user ${this.user.username} has been created`,
@@ -130,8 +145,11 @@ export default class New extends Vue {
             this.$router.push('index');
           })
           .catch(() => {
+            this.isUserBeingCreated = false;
             this.errorMsg = 'An error has ocurred!';
           });
+      } else {
+        this.isUserBeingCreated = false;
       }
     });
   }
@@ -139,8 +157,8 @@ export default class New extends Vue {
 </script>
 
 <style lang="scss">
-.new-user-form {
-  padding-left: 400px;
-  padding-right: 400px;
-}
+// .new-user-form {
+//   padding-left: 400px;
+//   padding-right: 400px;
+// }
 </style>
