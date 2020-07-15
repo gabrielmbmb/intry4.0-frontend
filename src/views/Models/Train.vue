@@ -16,6 +16,7 @@ div.app-container.new-user-form
       el-form-item
         el-button(
           @click="submit"
+          :loading="isLoading"
         ) Train
   div(v-else)
     el-form
@@ -35,6 +36,7 @@ div.app-container.new-user-form
         el-button(
           @click="submitFile"
           :disabled="!fileUploaded"
+          :loading="isLoading"
         ) Train
 
 
@@ -65,6 +67,8 @@ export default class TrainModel extends Vue {
 
   public trainNRows = 1000;
 
+  public isLoading = false;
+
   public mounted() {
     this.getDatamodel();
   }
@@ -82,7 +86,7 @@ export default class TrainModel extends Vue {
   }
 
   public handleFileUpload() {
-    if ((this.$refs.file as HTMLInputElement).files![0].type === 'text/csv') {
+    if ((this.$refs.file as HTMLInputElement).files![0].type === 'text/csv') { // eslint-disable-line
       this.fileUploaded = true;
       this.file = (this.$refs.file as HTMLInputElement).files![0]; // eslint-disable-line
     }
@@ -99,6 +103,7 @@ export default class TrainModel extends Vue {
   }
 
   public submit() {
+    this.isLoading = true;
     backendService
       .trainDatamodel(
         this.datamodel.id,
@@ -107,8 +112,10 @@ export default class TrainModel extends Vue {
       )
       .then(() => {
         this.notify();
+        this.isLoading = false;
       })
       .catch((err) => {
+        this.isLoading = false;
         console.log(err);
       });
   }
@@ -122,6 +129,7 @@ export default class TrainModel extends Vue {
 
     if (this.file) {
       formData.append('file', this.file);
+      this.isLoading = true;
       backendService
         .trainDatamodelWithCSV(
           this.datamodel.id,
@@ -130,10 +138,12 @@ export default class TrainModel extends Vue {
         )
         .then(() => {
           this.file = undefined;
+          this.isLoading = false;
           this.csvColumnIndex = '';
           this.notify();
         })
         .catch((err) => {
+          this.isLoading = false;
           console.log(err);
         });
     }
