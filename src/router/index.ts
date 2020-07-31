@@ -107,21 +107,19 @@ export const dynamicRoutes: Array<RouteConfig> = [
         },
         component: () =>
           import(/* webpackChunkName: "models" */ '../views/Models/Models.vue'),
-        children: [
-          {
-            path: '/models/:id/detail',
-            name: 'Model',
-            meta: {
-              title: 'Model',
-              roles: ['staff'],
-              hidden: true,
-            },
-            component: () =>
-              import(
-                /* webpackChunkName: "models-model" */ '../views/Models/Model.vue'
-              ),
-          },
-        ],
+      },
+      {
+        path: '/models/:id/detail',
+        name: 'Model',
+        meta: {
+          title: 'Model',
+          roles: ['staff'],
+          hidden: true,
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "models-model" */ '../views/Models/Model.vue'
+          ),
       },
       {
         path: 'new',
