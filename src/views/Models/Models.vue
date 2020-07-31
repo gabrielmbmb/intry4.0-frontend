@@ -1,6 +1,5 @@
 <template lang="pug">
 div.app-container
-  router-view
   h2 Anomaly Detection Models
   el-row(:gutter="20")
     el-col(:span="24")
@@ -137,6 +136,16 @@ export default class Models extends Vue {
                 this.trainProgress[datamodel.id].state === 'PROGRESS'
               ) {
                 this.getTaskStatus(datamodel.id);
+              } else if (this.trainProgress[datamodel.id].state === 'SUCCESS') {
+                const datamodelIndex = this.datamodels.findIndex(
+                  (model) => model.id === datamodel.id
+                );
+                this.$set(
+                  this.datamodels[datamodelIndex],
+                  'is_training',
+                  false
+                );
+                this.$set(this.datamodels[datamodelIndex], 'trained', true);
               }
             }, MODEL_TRAIN_STATE_REFRESH_RATE);
           } else {
