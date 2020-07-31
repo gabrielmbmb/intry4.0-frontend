@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div.app-container
   el-row
     h1 {{ `Anomaly Detection Model: ${datamodel.name}` }}
 
