@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import qs from 'query-string';
+import { NewDatamodel } from '@/types/datamodel';
 
 const BASE_URL = process.env.VUE_APP_BACKEND_HOST;
 const GRANT_TYPE = process.env.VUE_APP_BACKEND_GRANT_TYPE;
@@ -195,6 +196,23 @@ class BackendService {
     });
   }
 
+  public createDatamodel(payload: NewDatamodel, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .post(`${BASE_URL}/api/v1/datamodels/`, payload, { headers })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
   public trainDatamodel(id: string, payload: any, token: string) {
     return new Promise((resolve, reject) => {
       const headers = {
@@ -261,6 +279,23 @@ class BackendService {
         .get(`${BASE_URL}/api/v1/datamodels/${id}/task_status/`, {
           headers,
         })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public getEntities(token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/entities/`, { headers })
         .then((res: AxiosResponse) => {
           resolve(res);
         })
