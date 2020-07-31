@@ -30,7 +30,7 @@ div
         el-col(:span="6")
           p
             strong Date trained:
-            |  {{ datamodel.date_trained ? datamodel.date_trained : 'No training date' }}
+            |  {{ datamodel.date_trained ? formatDatex(datamodel.date_trained) : 'No training date' }}
         el-col(:span="6")
           p
             strong Deployed:
@@ -38,9 +38,8 @@ div
         el-col(:span="6")
           p
             strong Date deployed:
-            |  {{ datamodel.date_deployed ? datamodel.date_deployed : 'No deploying date' }}
-
-  div(v-if="datamodel.pca_mahalanobis").model-box
+            |  {{ datamodel.date_deployed ? formatDatex(datamodel.date_deployed) : 'No deploying date' }}
+  div(v-if="datamodel.pca_mahalanobis").model-box 
     el-row
       h3 PCA Mahalanobis parameters
     el-row
@@ -233,6 +232,7 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import backendService from '@/api/backend.service';
 import { AxiosResponse } from 'axios';
+import formatDate from '@/utils/date';
 import { AuthModule } from '../../store/modules/auth';
 
 @Component
@@ -253,6 +253,10 @@ export default class Model extends Vue {
       .catch((err) => {
         console.log(err);
       });
+  }
+
+  public formatDatex(date: string): string {
+    return formatDate(date, 'YYYY-MM-D HH:mm:ss');
   }
 }
 </script>

@@ -34,7 +34,7 @@ div.app-container
           width="220"
         )
           template(slot-scope="scope")
-            p {{ scope.row.date_trained ? scope.row.date_trained : 'No training date' }}
+            p {{ scope.row.date_trained ? formatDatex(scope.row.date_trained) : 'No training date' }}
         el-table-column(
           prop="is_active"
           label="Active"
@@ -48,7 +48,7 @@ div.app-container
           width="220"
         )
           template(slot-scope="scope")
-            p {{ scope.row.date_deployed ? scope.row.date_deployed : 'No deploying date' }}
+            p {{ scope.row.date_deployed ? formatDatex(scope.row.date_deployed) : 'No deploying date' }}
         el-table-column(
           prop="num_predictions"
           label="Num. of predictions"
@@ -103,6 +103,7 @@ import { Component } from 'vue-property-decorator';
 import backendService from '@/api/backend.service';
 import EventBus from '@/utils/eventBus';
 import { AxiosResponse } from 'axios';
+import formatDate from '@/utils/date';
 import { AuthModule } from '../../store/modules/auth';
 
 const MODEL_TRAIN_STATE_REFRESH_RATE = 2000;
@@ -191,6 +192,10 @@ export default class Models extends Vue {
 
   public trainModel(datamodel: any) {
     this.$router.push(`/models/train/${datamodel.id}`);
+  }
+
+  public formatDatex(date: string): string {
+    return formatDate(date, 'YYYY-MM-D HH:mm:ss');
   }
 }
 </script>
