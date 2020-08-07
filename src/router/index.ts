@@ -58,7 +58,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
     path: '/users',
     name: 'Users',
     component: Layout,
-    redirect: 'noredirect',
+    redirect: '/users/index',
     meta: {
       title: 'Users',
       roles: ['superuser'],
@@ -91,7 +91,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
     path: '/models',
     name: 'Models',
     component: Layout,
-    redirect: 'noredirect',
+    redirect: '/models/index',
     meta: {
       title: 'Models',
       roles: ['staff'],
@@ -109,7 +109,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
           import(/* webpackChunkName: "models" */ '../views/Models/Models.vue'),
       },
       {
-        path: '/models/:id/detail',
+        path: ':id/detail',
         name: 'Model',
         meta: {
           title: 'Model',
@@ -134,7 +134,7 @@ export const dynamicRoutes: Array<RouteConfig> = [
           ),
       },
       {
-        path: 'train/:id',
+        path: ':id/train',
         name: 'Train model',
         meta: {
           title: 'Train model',
