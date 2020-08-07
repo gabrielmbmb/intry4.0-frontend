@@ -2,6 +2,7 @@ export interface NewDatamodel {
   name: string;
   plcs: { [key: string]: string[] };
   contamination?: number;
+  scaler?: string;
   // PCA Mahalanobis
   pca_mahalanobis?: boolean;
   n_components?: number;
