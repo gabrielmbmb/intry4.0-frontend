@@ -2,9 +2,12 @@
   div.app-container
     h2 New model
     el-form(
+      inline
+      label-position="top"
       ref="datamodelForm"
       :model="datamodel"
       :rules="formRules"
+      size="small"
     )
       el-form-item(label="Model name" prop="name")
         el-input(v-model="datamodel.name")
@@ -22,6 +25,27 @@
             :key="attribute"
             :label="attribute.split('#')[0]"
             :value="attribute"
+          )
+
+      el-form-item(label="Contamination" prop="contamination")
+        el-tooltip(content="The percentage of outliers in the dataset")
+          el-input-number(
+            v-model="datamodel.contamination"
+            :min="0"
+            :max="0.5"
+            :step="0.1"
+          )
+
+      el-form-item(label="Scaler" prop="scaler")
+        el-select(
+            v-model="datamodel.scaler"
+            placeholder="Scaler..."
+        )
+          el-option(
+            v-for="scaler in SCALERS"
+            :key="scaler"
+            :value="scaler"
+            :label="scaler"
           )
 
       // Models
@@ -63,7 +87,11 @@
           name="autoencoder"
           title="Autoencoder"
         )
-          el-form-item(label="Layers" prop="hidden_neurons")
+          el-form-item(
+            label="Layers"
+            prop="hidden_neurons"
+            style="width: 100%;"
+          )
               el-input-number(
                   v-model="layerNumNeurons"
                   :min="1"
@@ -101,7 +129,6 @@
               el-select(
                   v-model="datamodel.activation"
                   placeholder="Activation function..."
-                  style="width: 200px;"
               )
                   el-option(
                       v-for="activation in ACTIVATION"
@@ -169,12 +196,15 @@
                   style="width: 200px;"
               )
 
-              el-form-item(label="early_stopping" prop="early_stopping")
-                  el-switch(
-                      v-model="datamodel.early_stopping"
-                      active-text="Yes"
-                      inactive-text="No"
-                  )
+          el-form-item(
+            label="early_stopping"
+            prop="early_stopping"
+          )
+              el-switch(
+                  v-model="datamodel.early_stopping"
+                  active-text="Yes"
+                  inactive-text="No"
+              )
         // k-Means
         el-collapse-item(
           v-if="selectedModels.includes('kmeans')"
@@ -537,9 +567,13 @@ export default class NewModel extends Vue {
 
   public SCORE_KNN = ['max_distance', 'average', 'median'];
 
+  public SCALERS = ['minmax', 'standard'];
+
   public datamodel: NewDatamodel = {
     name: '',
     plcs: {},
+    contamination: 0,
+    scaler: 'minmax',
     // PCA Mahalanobis
     n_components: 2,
     // Autoencoder
@@ -664,6 +698,10 @@ export default class NewModel extends Vue {
 
   public created() {
     this.getEntities();
+  }
+
+  public deactivated() {
+    this.datamodelForm.resetFields();
   }
 
   public getEntities() {
