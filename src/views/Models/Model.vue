@@ -1,230 +1,291 @@
 <template lang="pug">
 div.app-container
+  el-row.centered-row
+    h2 Anomaly Detection Model: 
+      p {{ datamodel.name }}
   el-row
-    h1 {{ `Anomaly Detection Model: ${datamodel.name}` }}
+    // Blackbox general info & progress
+    el-col(:span="12")
 
-  div.model-box
-    el-row
-      el-col(:span="6")
-        p
-          strong ID:
-          |  {{ datamodel.id }}
-      el-col(:span="6")
-        p
-          strong Name:
-          |  {{ datamodel.name }}
-      el-col(:span="6")
-        p
-          strong Is Training:
-          |  {{ datamodel.is_training ? 'Yes' : 'No' }}
-      el-col(:span="6")
-        p
-          strong Contamination train dataset:
-          |  {{ datamodel.contamination * 100 }}%
+      // Progress
+      el-row
+        // Model training status
+        el-col(:span="10")
+          el-row.centered-row
+            el-col
+              el-progress(
+                type="circle"
+                :percentage="taskStatus.current"
+                :color="progressColor"
+              )
+            el-col
+              p
+                strong Status:
+                |  {{ taskStatus.status }} 
+                i(v-if="taskStatus.state === 'SUCCESS'").el-icon-success
+                i(v-else-if="taskStatus.state === 'PROGRESS'").el-icon-loading
+                i(v-else).el-icon-error
 
-    el-row
+        // Last prediction status
+        // TODO: prediction status
+        el-col(:span="14")
+          p LAST PREDICTION HERE
+     
+      hr
+
+      // Info
+      el-row
+        el-col(:span="8")
+          p
+            strong Name:
+            |  {{ datamodel.name }}
+        el-col(:span="10")
+          p
+            strong ID:
+            |  {{ datamodel.id }}
+
         el-col(:span="6")
           p
+            strong Training:
+            |  {{ datamodel.is_training ? 'Yes' : 'No' }} 
+            i(v-if="datamodel.is_training").el-icon-circle-check
+            i(v-else).el-icon-circle-close
+
+      el-row
+        el-col
+          p
+            strong Contamination train dataset:
+            |  {{ datamodel.contamination * 100 }}%
+
+      el-row
+        el-col(:span="4")
+          p
             strong Trained:
-            |  {{ datamodel.trained ? 'Yes' : 'No' }}
-        el-col(:span="6")
+            |  {{ datamodel.trained ? 'Yes' : 'No' }} 
+            i(v-if="datamodel.trained").el-icon-circle-check
+            i(v-else).el-icon-circle-close
+        el-col(:span="8")
           p
             strong Date trained:
             |  {{ datamodel.date_trained ? formatDatex(datamodel.date_trained) : 'No training date' }}
-        el-col(:span="6")
+        el-col(:span="4")
           p
             strong Deployed:
-            |  {{ datamodel.deployed ? 'Yes' : 'No' }}
-        el-col(:span="6")
+            |  {{ datamodel.deployed ? 'Yes' : 'No' }} 
+            i(v-if="datamodel.deployed").el-icon-circle-check
+            i(v-else).el-icon-circle-close
+        el-col(:span="8")
           p
             strong Date deployed:
             |  {{ datamodel.date_deployed ? formatDatex(datamodel.date_deployed) : 'No deploying date' }}
-  div(v-if="datamodel.pca_mahalanobis").model-box 
-    el-row
-      h3 PCA Mahalanobis parameters
-    el-row
-      el-col(:span="24")
-        p
-          strong n_components:
-          |  {{ datamodel.n_components }}
 
-  div(v-if="datamodel.autoencoder").model-box
-    el-row
-      h3 Autoencoder parameters
-    el-row
-      el-col(:span="4")
-        p
-          strong Layers:
-          |  {{ datamodel.hidden_neurons }}
-      el-col(:span="4")
-        p
-          strong Dropout rate:
-          |  {{ datamodel.dropout_rate }}
-      el-col(:span="4")
-        p
-          strong Activation:
-          |  {{ datamodel.activation }}
-      el-col(:span="4")
-        p
-          strong Kernel initializer:
-          |  {{ datamodel.kernel_initializer }}
-      el-col(:span="4")
-        p
-          strong Loss function:
-          |  {{ datamodel.loss_function }}
-      el-col(:span="4")
-        p
-          strong Optimizer:
-          |  {{ datamodel.optimizer }}
-    el-row
-      el-col(:span="4")
-        p
-          strong Epochs:
-          |  {{ datamodel.epochs }}
-      el-col(:span="4")
-        p
-          strong Batch size:
-          |  {{ datamodel.batch_size }}
-      el-col(:span="4")
-        p
-          strong Validation split:
-          |  {{ datamodel.validation_split }}
-      el-col(:span="4")
-        p
-          strong Early stopping:
-          |  {{ datamodel.early_stopping }}
+      hr
 
-  div(v-if="datamodel.kmeans").model-box
-    el-row
-      h3 K-Means parameters
-    el-row
-      el-col(:span="4")
-        p
-          strong n_clusters:
-          |  {{ datamodel.n_clusters }}
-      el-col(:span="4")
-        p
-          strong Max. cluster elbow:
-          |  {{ datamodel.max_cluster_elbow }}
+      el-row.centered-row
+        el-col(style="padding-top: 20px;")
+          el-button(
+            @click="deployDatamodel(datamodel)"
+            :disabled="datamodel.is_training || !datamodel.trained"
+          ) {{ datamodel.deployed ? 'Set unactive' : 'Set active' }}
+          el-button(
+            @click="trainModel(datamodel)"
+            style="margin-left: 10px;"
+            :disabled="datamodel.is_training"
+          ) {{ datamodel.trained ? 'Retrain' : 'Train' }}
+          el-popconfirm(
+            title="Are you sure you want to remove this user?"
+            confirmButtonText="Yes"
+            cancelButtonText="No"
+            confirmButtonType="danger"
+            @onConfirm="deleteDatamodel(datamodel)"
+          )
+            el-button(
+              slot="reference"
+              type="danger"
+              style="margin-left: 10px;"
+            ) Remove
 
-  div(v-if="datamodel.ocsvm").model-box
-    el-row
-      h3 One Class SVM
-    el-row
-      el-col(:span="4")
-        p
-          strong Kernel:
-          |  {{ datamodel.kernel }}
-      el-col(:span="4")
-        p
-          strong Degree:
-          |  {{ datamodel.degree }}
-      el-col(:span="4")
-        p
-          strong Gamma:
-          |  {{ datamodel.gamma }}
-      el-col(:span="4")
-        p
-          strong Coef0:
-          |  {{ datamodel.coef0 }}
-      el-col(:span="4")
-        p
-          strong tol:
-          |  {{ datamodel.tol }}
-      el-col(:span="4")
-        p
-          strong shrinking:
-          |  {{ datamodel.shrinking }}
-    el-row
-      el-col(:span="4")
-        p
-          strong cache_size:
-          |  {{ datamodel.cache_size }}
+    // Models inside Blackbox info
+    el-col(:span="12")
+      el-collapse(v-model="collapseActive" accordion)
+        // PCA Mahalanobis
+        el-collapse-item(title="PCA Mahalanobis" name="pca_mahalanobis")
+          el-row
+            el-col(:span="24")
+              p
+                strong n_components:
+                |  {{ datamodel.n_components }}
 
-  div(v-if="datamodel.gaussian_distribution").model-box
-    el-row
-      h3 Gaussian Distribution
-    el-row
-      el-col(:span="4")
-        p
-          strong Epsilon candidates:
-          |  {{ datamodel.epsilon_candidates }}
+        // Autoencoder
+        el-collapse-item(title="Autoencoder" name="autoencoder")
+          el-row
+            el-col(:span="4")
+              p
+                strong Layers:
+                |  {{ datamodel.hidden_neurons }}
+            el-col(:span="4")
+              p
+                strong Dropout rate:
+                |  {{ datamodel.dropout_rate }}
+            el-col(:span="4")
+              p
+                strong Activation:
+                |  {{ datamodel.activation }}
+            el-col(:span="4")
+              p
+                strong Kernel initializer:
+                |  {{ datamodel.kernel_initializer }}
+            el-col(:span="4")
+              p
+                strong Loss function:
+                |  {{ datamodel.loss_function }}
+            el-col(:span="4")
+              p
+                strong Optimizer:
+                |  {{ datamodel.optimizer }}
+          el-row
+            el-col(:span="4")
+              p
+                strong Epochs:
+                |  {{ datamodel.epochs }}
+            el-col(:span="4")
+              p
+                strong Batch size:
+                |  {{ datamodel.batch_size }}
+            el-col(:span="4")
+              p
+                strong Validation split:
+                |  {{ datamodel.validation_split }}
+            el-col(:span="4")
+              p
+                strong Early stopping:
+                |  {{ datamodel.early_stopping }}
 
-  div(v-if="datamodel.isolation_forest").model-box
-    el-row
-      h3 Isolation Forest
-    el-row
-      el-col(:span="4")
-        p
-          strong n_estimators:
-          |  {{ datamodel.n_estimators }}
-      el-col(:span="4")
-        p
-          strong max_features:
-          |  {{ datamodel.max_features }}
-      el-col(:span="4")
-        p
-          strong bootstrap:
-          |  {{ datamodel.bootstrap }}
+        // K-Means
+        el-collapse-item(title="k-Means" name="kmeans")
+          el-row
+            el-col(:span="4")
+              p
+                strong n_clusters:
+                |  {{ datamodel.n_clusters }}
+            el-col(:span="4")
+              p
+                strong Max. cluster elbow:
+                |  {{ datamodel.max_cluster_elbow }}
 
-  div(v-if="datamodel.lof").model-box
-    el-row
-      h3 Local Outlier Factor
-    el-row
-      el-col(:span="4")
-        p
-          strong n_neighbors:
-          |  {{ datamodel.n_neighbors_lof }}
-      el-col(:span="4")
-        p
-          strong algorithm:
-          |  {{ datamodel.algorithm_lof }}
-      el-col(:span="4")
-        p
-          strong leaf_size:
-          |  {{ datamodel.leaf_size_lof }}
-      el-col(:span="4")
-        p
-          strong metric:
-          |  {{ datamodel.metric_lof }}
-      el-col(:span="4")
-        p
-          strong p:
-          |  {{ datamodel.p_lof }}
+        // One Class SVM
+        el-collapse-item(title="One Class SVM" name="ocsvm")
+          el-row
+            el-col(:span="4")
+              p
+                strong Kernel:
+                |  {{ datamodel.kernel }}
+            el-col(:span="4")
+              p
+                strong Degree:
+                |  {{ datamodel.degree }}
+            el-col(:span="4")
+              p
+                strong Gamma:
+                |  {{ datamodel.gamma }}
+            el-col(:span="4")
+              p
+                strong Coef0:
+                |  {{ datamodel.coef0 }}
+            el-col(:span="4")
+              p
+                strong tol:
+                |  {{ datamodel.tol }}
+            el-col(:span="4")
+              p
+                strong shrinking:
+                |  {{ datamodel.shrinking }}
+          el-row
+            el-col(:span="4")
+              p
+                strong cache_size:
+                |  {{ datamodel.cache_size }}
 
-  div(v-if="datamodel.knn").model-box
-    el-row
-      h3 K-Nearest Neighbors
-    el-row
-      el-col(:span="4")
-        p
-          strong n_neighbors:
-          |  {{ datamodel.n_neighbors_knn }}
-      el-col(:span="4")
-        p
-          strong n_neighbors:
-          |  {{ datamodel.radius }}
-      el-col(:span="4")
-        p
-          strong algorithm:
-          |  {{ datamodel.algorithm_knn }}
-      el-col(:span="4")
-        p
-          strong leaf_size:
-          |  {{ datamodel.leaf_size_knn }}
-      el-col(:span="4")
-        p
-          strong metric:
-          |  {{ datamodel.metric_knn }}
-      el-col(:span="4")
-        p
-          strong p:
-          |  {{ datamodel.p_knn }}
-    el-row
-      el-col(:span="4")
-        p
-          strong p:
-          |  {{ datamodel.score_func }}
+        // Gaussian Distribution
+        el-collapse-item(title="Gaussian Distribution" name="gaussian_distribution")
+          el-row
+            el-col(:span="4")
+              p
+                strong Epsilon candidates:
+                |  {{ datamodel.epsilon_candidates }}
+
+        // Isolation Forest
+        el-collapse-item(title="Isolation Forest" name="isolation_forest")
+          el-row
+            el-col(:span="4")
+              p
+                strong n_estimators:
+                |  {{ datamodel.n_estimators }}
+            el-col(:span="4")
+              p
+                strong max_features:
+                |  {{ datamodel.max_features }}
+            el-col(:span="4")
+              p
+                strong bootstrap:
+                |  {{ datamodel.bootstrap }}
+
+        // Local Outlier Factor
+        el-collapse-item(title="Local Outlier Factor" name="lof")
+          el-col(:span="4")
+            p
+              strong n_neighbors:
+              |  {{ datamodel.n_neighbors_lof }}
+          el-col(:span="4")
+            p
+              strong algorithm:
+              |  {{ datamodel.algorithm_lof }}
+          el-col(:span="4")
+            p
+              strong leaf_size:
+              |  {{ datamodel.leaf_size_lof }}
+          el-col(:span="4")
+            p
+              strong metric:
+              |  {{ datamodel.metric_lof }}
+          el-col(:span="4")
+            p
+              strong p:
+              |  {{ datamodel.p_lof }}
+
+        // k-Nearest Neighbors
+        el-collapse-item(title="k-Nearest Neighbors" name="knn")
+          el-row
+            el-col(:span="4")
+              p
+                strong n_neighbors:
+                |  {{ datamodel.n_neighbors_knn }}
+            el-col(:span="4")
+              p
+                strong n_neighbors:
+                |  {{ datamodel.radius }}
+            el-col(:span="4")
+              p
+                strong algorithm:
+                |  {{ datamodel.algorithm_knn }}
+            el-col(:span="4")
+              p
+                strong leaf_size:
+                |  {{ datamodel.leaf_size_knn }}
+            el-col(:span="4")
+              p
+                strong metric:
+                |  {{ datamodel.metric_knn }}
+            el-col(:span="4")
+              p
+                strong p:
+                |  {{ datamodel.p_knn }}
+          el-row
+            el-col(:span="4")
+              p
+                strong p:
+                |  {{ datamodel.score_func }}
+
 </template>
 
 <script lang="ts">
@@ -239,8 +300,22 @@ import { AuthModule } from '../../store/modules/auth';
 export default class Model extends Vue {
   public datamodel = {};
 
-  public mounted() {
+  public taskStatus: { [key: string]: string | number } = {};
+
+  public interval?: NodeJS.Timeout;
+
+  public collapseActive: string[] = [];
+
+  public activated() {
     this.getDatamodel();
+    this.getTaskStatus();
+    this.interval = setInterval(this.getTaskStatus, 5000);
+  }
+
+  public deactivated() {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
   }
 
   public getDatamodel() {
@@ -255,16 +330,86 @@ export default class Model extends Vue {
       });
   }
 
+  public getTaskStatus() {
+    backendService
+      .getTaskStatus(this.$route.params.id, AuthModule.accessToken)
+      .then((res) => {
+        const { data } = res as AxiosResponse;
+        console.log(data);
+        this.taskStatus = data;
+      })
+      .catch((err) => {
+        console.log(`An error has ocurred when getting task status: ${err}`);
+      });
+  }
+
   public formatDatex(date: string): string {
     return formatDate(date, 'YYYY-MM-D HH:mm:ss');
+  }
+
+  public progressColor(percentage: number) {
+    if (percentage === 100) {
+      return '#f64c72';
+    }
+
+    return '#242582';
+  }
+
+  public deployDatamodel(datamodel: any) {
+    backendService
+      .deployDatamodel(datamodel.id, AuthModule.accessToken)
+      .then(() => this.getDatamodel())
+      .catch((err) => console.log(err));
+  }
+
+  public deleteDatamodel(datamodel: any) {
+    backendService
+      .deleteDatamodel(datamodel.id, AuthModule.accessToken)
+      .then(() => {
+        this.$router.push('/models/index');
+        this.$notify({
+          title: 'Datamodel removed',
+          message: `The datamodel ${datamodel.name} has been removed`,
+          type: 'success',
+        });
+      });
+  }
+
+  public trainModel(datamodel: any) {
+    this.$router.push(`/models/${datamodel.id}/train`);
   }
 }
 </script>
 
 <style lang="scss" scoped>
+h2 {
+  p {
+    display: inline-block;
+    font-weight: normal;
+  }
+}
+
+hr {
+  margin: 0 10px 0 10px;
+}
+
 .model-box {
   margin-top: 10px;
   margin-bottom: 10px;
   border-bottom: 1px solid gray;
+}
+
+.centered-row {
+  text-align: center;
+}
+
+.el-icon-success,
+.el-icon-circle-check {
+  color: green;
+}
+
+.el-icon-error,
+.el-icon-circle-close {
+  color: red;
 }
 </style>
