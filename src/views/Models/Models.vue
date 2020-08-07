@@ -80,7 +80,7 @@ div.app-container
               @click="trainModel(scope.row)"
               style="margin-left: 10px;"
               :disabled="scope.row.is_training"
-            ) {{ scope.row.train ? 'Retrain' : 'Train' }}
+            ) {{ scope.row.trained ? 'Retrain' : 'Train' }}
             el-popconfirm(
               title="Are you sure you want to remove this user?"
               confirmButtonText="Yes"
@@ -105,9 +105,9 @@ import { AxiosResponse } from 'axios';
 import formatDate from '@/utils/date';
 import { AuthModule } from '../../store/modules/auth';
 
-const MODEL_TRAIN_STATE_REFRESH_RATE = 2000;
+const MODEL_TRAIN_STATE_REFRESH_RATE = 5000;
 
-@Component
+@Component({})
 export default class Models extends Vue {
   public datamodels: { [key: string]: any }[] = [];
 
@@ -115,9 +115,15 @@ export default class Models extends Vue {
 
   public tableKey = 0;
 
-  public mounted() {
+  public intervals: NodeJS.Timeout[] = [];
+
+  public activated() {
     this.getDatamodels();
     EventBus.$on('update-models', () => this.getDatamodels());
+  }
+
+  public deactivated() {
+    this.intervals.forEach((interval) => clearInterval(interval));
   }
 
   public getDatamodels() {
@@ -130,7 +136,7 @@ export default class Models extends Vue {
         this.datamodels.forEach((datamodel) => {
           if (datamodel.task_status) {
             this.trainProgress[datamodel.id] = {};
-            setInterval(() => {
+            const interval = setInterval(() => {
               if (
                 Object.keys(this.trainProgress[datamodel.id]).length === 0 ||
                 this.trainProgress[datamodel.id].state === 'PROGRESS'
@@ -148,6 +154,7 @@ export default class Models extends Vue {
                 this.$set(this.datamodels[datamodelIndex], 'trained', true);
               }
             }, MODEL_TRAIN_STATE_REFRESH_RATE);
+            this.intervals.push(interval);
           } else {
             this.trainProgress[datamodel.id] = null;
           }
@@ -200,7 +207,7 @@ export default class Models extends Vue {
   }
 
   public trainModel(datamodel: any) {
-    this.$router.push(`/models/train/${datamodel.id}`);
+    this.$router.push(`/models/${datamodel.id}/train`);
   }
 
   public formatDatex(date: string): string {
