@@ -6,7 +6,7 @@
     )
       //- No link because 'noredirect' or it's the last route in the breadcrumb
       span(
-        v-if="route.redirect === 'noredirect' || index === breadcrumbs.length - 1"
+        v-if="route.redirect === 'noredirect' || index === breadcrumbs.length - 1 || $route.path.split('/').slice(-1)[0] === 'index'"
       ) {{ route.meta.title.toLowerCase()}}
       //- Link to the route
       a(
