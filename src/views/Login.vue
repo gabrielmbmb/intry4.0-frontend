@@ -21,7 +21,7 @@ div
               type="password"
               placeholder="password"
             )
-          el-form-item
+          el-form-item(style="text-align: center;")
             el-button(
               type="primary"
               @click="onClickLogin"
