@@ -158,6 +158,7 @@ export default class TrainModel extends Vue {
 
     if (Object.keys(payload).length > 0) {
       this.isLoading = true;
+      document.title = 'Getting rows... - InTry 4.0';
       backendService
         .trainDatamodel(this.datamodel.id, payload, AuthModule.accessToken)
         .then(() => {

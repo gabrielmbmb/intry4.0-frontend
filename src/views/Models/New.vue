@@ -9,44 +9,49 @@
       :rules="formRules"
       size="small"
     )
-      el-form-item(label="Model name" prop="name")
-        el-input(v-model="datamodel.name")
+      el-row
+        el-form-item(label="Model name" prop="name")
+          el-input(
+            v-model="datamodel.name"
+            placeholder="Blackbox name..."
+          )
+
+        el-form-item(label="Contamination" prop="contamination")
+          el-tooltip(content="The percentage of outliers in the dataset")
+            el-input-number(
+              v-model="datamodel.contamination"
+              :min="0"
+              :max="0.5"
+              :step="0.1"
+            )
+
+        el-form-item(label="Scaler" prop="scaler")
+          el-select(
+              v-model="datamodel.scaler"
+              placeholder="Scaler..."
+          )
+            el-option(
+              v-for="scaler in SCALERS"
+              :key="scaler"
+              :value="scaler"
+              :label="scaler"
+            )
 
       // Select attributes of the model
-      el-form-item(label="Attributes" prop="attributes")
-        el-select(
-          v-model="attributes"
-          multiple
-          filterable
-          placeholder="Select attributes..."
-        )
-          el-option(
-            v-for="attribute in attrsPlc"
-            :key="attribute"
-            :label="attribute.split('#')[0]"
-            :value="attribute"
+      el-row
+        el-form-item(label="Attributes" prop="attributes").full-width-item
+          el-select(
+            v-model="attributes"
+            multiple
+            filterable
+            placeholder="Select attributes..."
           )
-
-      el-form-item(label="Contamination" prop="contamination")
-        el-tooltip(content="The percentage of outliers in the dataset")
-          el-input-number(
-            v-model="datamodel.contamination"
-            :min="0"
-            :max="0.5"
-            :step="0.1"
-          )
-
-      el-form-item(label="Scaler" prop="scaler")
-        el-select(
-            v-model="datamodel.scaler"
-            placeholder="Scaler..."
-        )
-          el-option(
-            v-for="scaler in SCALERS"
-            :key="scaler"
-            :value="scaler"
-            :label="scaler"
-          )
+            el-option(
+              v-for="attribute in attrsPlc"
+              :key="attribute"
+              :label="attribute.split('#')[0]"
+              :value="attribute"
+            )
 
       // Models
       el-form-item(label="Models" prop="models")
@@ -823,6 +828,13 @@ export default class NewModel extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.full-width-item {
+  width: 100%;
+  .el-select {
+    width: 100%;
+  }
+}
+
 .create-button {
   margin-top: 30px;
 }
