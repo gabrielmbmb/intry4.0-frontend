@@ -6,6 +6,8 @@ import Element from 'element-ui';
 import locale from 'element-ui/lib/locale/lang/en';
 import VueParticles from 'vue-particles';
 import SvgIcon from 'vue-svgicon';
+import VueSocketIO from 'vue-socket.io';
+import SocketIO from 'socket.io-client';
 
 import App from './App.vue';
 import router from './router';
@@ -25,6 +27,19 @@ Vue.use(SvgIcon, {
   defaultWidth: '1em',
   defaultHeight: '1em',
 });
+Vue.use(
+  new VueSocketIO({
+    debug: process.env.NODE_ENV !== 'production',
+    connection: SocketIO(
+      process.env.VUE_APP_NOTIFICATION_BACKEND_HOST || 'http://localhost:8678'
+    ),
+    vuex: {
+      store,
+      actionPrefix: 'SOCKET_',
+      mutationPrefix: 'SOCKET_',
+    },
+  })
+);
 
 new Vue({
   router,
