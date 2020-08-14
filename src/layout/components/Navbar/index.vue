@@ -6,6 +6,20 @@
     ).hamburger-container
     breadcrumb.breadcrumb-container
     div.right-menu
+      el-dropdown(
+        trigger="click"
+      ).right-menu-item.hover-effect
+        i.el-icon-bell
+          span.notification-number {{ notifications.length }} 
+        el-dropdown-menu
+          el-dropdown-item(
+            v-for="notification in notifications"
+            :key="notification.id"
+          )
+            NotificationItem(
+              :icon="notification.icon"
+              :message="notification.message"
+            )
       el-dropdown(trigger="click").right-menu-item.hover-effect
         div
           svg-icon(name="user")
@@ -26,16 +40,23 @@ import Hamburger from '@/components/Hamburger/index.vue';
 import Breadcrumb from '@/components/Breadcrumb/index.vue';
 import { AppModule } from '@/store/modules/app';
 import { AuthModule } from '@/store/modules/auth';
+import { NotificationModule } from '@/store/modules/notification';
+import NotificationItem from './components/NotificationItem.vue';
 
 @Component({
   components: {
     Hamburger,
     Breadcrumb,
+    NotificationItem,
   },
 })
 export default class extends Vue {
   get sidebar() {
     return AppModule.sidebar;
+  }
+
+  public get notifications() {
+    return NotificationModule.unseen;
   }
 
   private toggleSideBar() {
