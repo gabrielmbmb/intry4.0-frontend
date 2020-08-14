@@ -304,6 +304,62 @@ class BackendService {
         });
     });
   }
+
+  public getPredictions(token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/predictions/`, { headers })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public getPredictionsFromDatamodel(datamodel: string, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .get(`${BASE_URL}/api/v1/datamodels/${datamodel}/predictions/`, {
+          headers,
+        })
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
+
+  public ackPrediction(datamodel: string, prediction: string, token: string) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      axios
+        .post(
+          `${BASE_URL}/api/v1/datamodels/${datamodel}/predictions/${prediction}/ack/`,
+          { headers }
+        )
+        .then((res: AxiosResponse) => {
+          resolve(res);
+        })
+        .catch((err: AxiosError) => {
+          reject(err);
+        });
+    });
+  }
 }
 
 export default new BackendService();
