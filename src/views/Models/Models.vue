@@ -59,13 +59,14 @@ div.app-container
           label="Training progress"
         )
           template(slot-scope="scope")
-            div(v-if="trainProgress[scope.row.id] === null")
-              p No training status
-            div(v-else-if="Object.keys(trainProgress[scope.row.id]).length === 0")
-              p Loading...
-            div(v-else)
-              el-progress(:percentage="trainProgress[scope.row.id].current")
-              p {{ trainProgress[scope.row.id].status }}
+            div(v-if="Object.keys(trainProgress).length > 0")
+              div(v-if="trainProgress[scope.row.id] === null")
+                p No training status
+              div(v-else-if="Object.keys(trainProgress[scope.row.id]).length === 0")
+                p Loading...
+              div(v-else)
+                el-progress(:percentage="trainProgress[scope.row.id].current")
+                p {{ trainProgress[scope.row.id].status }}
         el-table-column(
           prop="buttons"
         )
@@ -104,18 +105,21 @@ import EventBus from '@/utils/eventBus';
 import { AxiosResponse } from 'axios';
 import formatDate from '@/utils/date';
 import { AuthModule } from '../../store/modules/auth';
+import { DatamodelModule } from '../../store/modules/datamodel';
 
 const MODEL_TRAIN_STATE_REFRESH_RATE = 5000;
 
 @Component({})
 export default class Models extends Vue {
-  public datamodels: { [key: string]: any }[] = [];
-
   public trainProgress: { [key: string]: any } = {};
 
   public tableKey = 0;
 
   public intervals: NodeJS.Timeout[] = [];
+
+  public get datamodels() {
+    return DatamodelModule.datamodels;
+  }
 
   public activated() {
     this.getDatamodels();
@@ -123,46 +127,38 @@ export default class Models extends Vue {
   }
 
   public deactivated() {
-    this.intervals.forEach((interval) => clearInterval(interval));
+    this.clearIntervals();
   }
 
-  public getDatamodels() {
-    backendService
-      .getDatamodels(AuthModule.accessToken)
-      .then((res) => {
-        const { data } = res as AxiosResponse;
-        this.datamodels = data;
-
-        this.datamodels.forEach((datamodel) => {
-          if (datamodel.task_status) {
-            this.trainProgress[datamodel.id] = {};
-            const interval = setInterval(() => {
-              if (
-                Object.keys(this.trainProgress[datamodel.id]).length === 0 ||
-                this.trainProgress[datamodel.id].state === 'PROGRESS'
-              ) {
-                this.getTaskStatus(datamodel.id);
-              } else if (this.trainProgress[datamodel.id].state === 'SUCCESS') {
-                const datamodelIndex = this.datamodels.findIndex(
-                  (model) => model.id === datamodel.id
-                );
-                this.$set(
-                  this.datamodels[datamodelIndex],
-                  'is_training',
-                  false
-                );
-                this.$set(this.datamodels[datamodelIndex], 'trained', true);
-              }
-            }, MODEL_TRAIN_STATE_REFRESH_RATE);
-            this.intervals.push(interval);
-          } else {
-            this.trainProgress[datamodel.id] = null;
+  public async getDatamodels() {
+    await DatamodelModule.getDatamodels();
+    this.datamodels.forEach((datamodel: any) => {
+      if (datamodel.task_status) {
+        this.trainProgress[datamodel.id] = {};
+        this.getTaskStatus(datamodel.id);
+        const interval = setInterval(() => {
+          if (
+            Object.keys(this.trainProgress[datamodel.id]).length === 0 ||
+            this.trainProgress[datamodel.id].state === 'PROGRESS'
+          ) {
+            this.getTaskStatus(datamodel.id);
+          } else if (this.trainProgress[datamodel.id].state === 'SUCCESS') {
+            const datamodelIndex = this.datamodels.findIndex(
+              (model: any) => model.id === datamodel.id
+            );
+            this.$set(this.datamodels[datamodelIndex], 'is_training', false);
+            this.$set(this.datamodels[datamodelIndex], 'trained', true);
           }
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        }, MODEL_TRAIN_STATE_REFRESH_RATE);
+        this.intervals.push(interval);
+      } else {
+        this.trainProgress[datamodel.id] = null;
+      }
+    });
+  }
+
+  public clearIntervals() {
+    this.intervals.forEach((interval) => clearInterval(interval));
   }
 
   public getTaskStatus(id: string) {
@@ -188,6 +184,7 @@ export default class Models extends Vue {
     backendService
       .deployDatamodel(datamodel.id, AuthModule.accessToken)
       .then(() => {
+        this.clearIntervals();
         this.getDatamodels();
       })
       .catch((err) => console.log(err));
@@ -197,7 +194,7 @@ export default class Models extends Vue {
     backendService
       .deleteDatamodel(datamodel.id, AuthModule.accessToken)
       .then(() => {
-        this.getDatamodels();
+        // this.getDatamodels();
         this.$notify({
           title: 'Datamodel removed',
           message: `The datamodel ${datamodel.name} has been removed`,
