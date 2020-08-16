@@ -194,7 +194,7 @@ export default class Models extends Vue {
     backendService
       .deleteDatamodel(datamodel.id, AuthModule.accessToken)
       .then(() => {
-        // this.getDatamodels();
+        this.getDatamodels();
         this.$notify({
           title: 'Datamodel removed',
           message: `The datamodel ${datamodel.name} has been removed`,
