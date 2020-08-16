@@ -9,17 +9,25 @@
       el-dropdown(
         trigger="click"
       ).right-menu-item.hover-effect
-        i.el-icon-bell
-          span.notification-number {{ notifications.length }} 
+        el-badge(
+          :value="numNotifications"
+          :hidden="numNotifications === 0"
+        ).custom-badge
+          i.el-icon-bell
         el-dropdown-menu
-          el-dropdown-item(
-            v-for="notification in notifications"
-            :key="notification.id"
-          )
-            NotificationItem(
-              :icon="notification.icon"
-              :message="notification.message"
+          div(v-if="notifications.length > 0")
+            el-dropdown-item(
+              v-for="notification in notifications"
+              :key="notification.id"
+              @click.native="handleNotificationClick(notification.id)"
             )
+              NotificationItem(
+                :icon="notification.icon"
+                :message="notification.message"
+                @buttonClick="notificationButtonClicked(notification.id)"
+              )
+          div(v-else)
+            el-dropdown-item(:disabled="true") There are no new notifications
       el-dropdown(trigger="click").right-menu-item.hover-effect
         div
           svg-icon(name="user")
@@ -59,6 +67,10 @@ export default class extends Vue {
     return NotificationModule.unseen;
   }
 
+  public get numNotifications() {
+    return Object.values(this.notifications).length;
+  }
+
   private toggleSideBar() {
     AppModule.toggleSidebar();
   }
@@ -66,6 +78,14 @@ export default class extends Vue {
   private async logout() {
     await AuthModule.logout();
     this.$router.push(`/login?redirect=${this.$route.fullPath}`);
+  }
+
+  public handleNotificationClick(id: string) {
+    NotificationModule.removeNotification(id);
+  }
+
+  public notificationButtonClicked(id: string) {
+    this.$router.push(`/prediction/${id}`);
   }
 }
 </script>
