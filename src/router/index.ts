@@ -149,6 +149,27 @@ export const dynamicRoutes: Array<RouteConfig> = [
     ],
   },
   {
+    path: '/prediction',
+    component: Layout,
+    meta: {
+      hidden: true,
+    },
+    children: [
+      {
+        path: ':id',
+        name: 'Prediction',
+        meta: {
+          title: 'Prediction',
+          hidden: true,
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "prediction" */ '../views/Models/Prediction.vue'
+          ),
+      },
+    ],
+  },
+  {
     path: '/profile',
     component: Layout,
     redirect: '/profile/index',
