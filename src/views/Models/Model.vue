@@ -14,7 +14,7 @@ div
           // Progress
           el-row
             // Model training status
-            el-col(:span="10")
+            el-col
               el-row.centered-row
                 el-col
                   el-progress(
@@ -30,11 +30,6 @@ div
                     i(v-else-if="taskStatus.state === 'PROGRESS'").el-icon-loading
                     i(v-else).el-icon-error
 
-            // Last prediction status
-            // TODO: prediction status
-            el-col(:span="14")
-              p LAST PREDICTION HERE
-         
           hr
 
           // Info
@@ -83,6 +78,11 @@ div
               p
                 strong Date deployed:
                 |  {{ datamodel.date_deployed ? formatDatex(datamodel.date_deployed) : 'No deploying date' }}
+          el-row
+            el-col
+              p
+                strong Attributes:
+                  pre {{ datamodel.plcs | prettify }}
 
           hr
 
@@ -295,7 +295,12 @@ div
   el-row.box-row
     el-col.aligned
       h3 Predictions
-      el-table
+      PredictionTable(
+        :predictions="predictions"
+        :datamodels="[datamodel]"
+        :tableMaxHeight="500"
+        @updatePredictions="getPredictions"
+      )
 </template>
 
 <script lang="ts">
@@ -304,13 +309,22 @@ import { Component } from 'vue-property-decorator';
 import backendService from '@/api/backend.service';
 import { AxiosResponse } from 'axios';
 import formatDate from '@/utils/date';
+import PredictionTable from '@/components/PredictionTable/index.vue';
 import { AuthModule } from '../../store/modules/auth';
+import { DatamodelModule } from '../../store/modules/datamodel';
 
-@Component
+@Component({
+  components: {
+    PredictionTable,
+  },
+  filters: {
+    prettify(value: object) {
+      return JSON.stringify(value, null, 2);
+    },
+  },
+})
 export default class Model extends Vue {
   public datamodel: { [key: string]: any } = {};
-
-  public predictions: { [key: string]: any }[] = [];
 
   public taskStatus: { [key: string]: string | number } = {};
 
@@ -318,9 +332,16 @@ export default class Model extends Vue {
 
   public collapseActive: string[] = [];
 
+  public get predictions() {
+    return DatamodelModule.predictions.filter(
+      (prediction: { [key: string]: any }) =>
+        prediction.datamodel === this.$route.params.id
+    );
+  }
+
   public activated() {
-    this.getDatamodel();
     this.getPredictions();
+    this.getDatamodel();
     this.getTaskStatus();
     if (this.datamodel.task_status) {
       this.interval = setInterval(() => {
@@ -355,21 +376,6 @@ export default class Model extends Vue {
       });
   }
 
-  public getPredictions() {
-    backendService
-      .getPredictionsFromDatamodel(
-        AuthModule.accessToken,
-        this.$route.params.id
-      )
-      .then((res) => {
-        const { data } = res as AxiosResponse;
-        this.predictions = data;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
   public getTaskStatus() {
     backendService
       .getTaskStatus(this.$route.params.id, AuthModule.accessToken)
@@ -380,6 +386,11 @@ export default class Model extends Vue {
       .catch((err) => {
         console.log(`An error has ocurred when getting task status: ${err}`);
       });
+  }
+
+  public getPredictions() {
+    console.log('Getting predictions');
+    DatamodelModule.getPredictions();
   }
 
   public formatDatex(date: string): string {
