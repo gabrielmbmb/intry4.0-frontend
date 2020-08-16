@@ -341,17 +341,16 @@ class BackendService {
     });
   }
 
-  public ackPrediction(datamodel: string, prediction: string, token: string) {
+  public ackPrediction(prediction: string, token: string) {
     return new Promise((resolve, reject) => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
 
       axios
-        .post(
-          `${BASE_URL}/api/v1/datamodels/${datamodel}/predictions/${prediction}/ack/`,
-          { headers }
-        )
+        .post(`${BASE_URL}/api/v1/predictions/${prediction}/ack/`, undefined, {
+          headers,
+        })
         .then((res: AxiosResponse) => {
           resolve(res);
         })
