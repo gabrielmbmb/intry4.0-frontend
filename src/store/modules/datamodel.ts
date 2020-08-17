@@ -19,9 +19,9 @@ export interface IDatamodelState {
 
 @Module({ dynamic: true, store, name: 'datamodel' })
 class Datamodel extends VuexModule implements IDatamodelState {
-  public datamodels: object[] = [];
+  public datamodels: { [key: string]: any }[] = [];
 
-  public predictions: object[] = [];
+  public predictions: { [key: string]: any }[] = [];
 
   @Mutation
   private SET_DATAMODELS(datamodels: object[]) {
@@ -41,13 +41,17 @@ class Datamodel extends VuexModule implements IDatamodelState {
   @Mutation
   private UPDATE_PREDICTION(prediction: { [key: string]: any }, index: number) {
     Vue.set(this.predictions, index, prediction);
-    console.log(prediction.predictions);
     // Check if any model has predicted an anomaly. If so, create a notification.
     if (Object.values(prediction.predictions).some((pred) => pred)) {
+      const datamodelOfPrediction = this.datamodels.find(
+        (datamodel) => datamodel.id === prediction.datamodel_id
+      );
       NotificationModule.addNotification({
         id: prediction.id,
-        icon: 'brain',
-        message: `New anomaly detected`,
+        icon: 'alert',
+        message: `New anomaly detected by ${
+          datamodelOfPrediction ? datamodelOfPrediction.name : ''
+        }`,
       });
     }
   }

@@ -1,11 +1,11 @@
 <template lang="pug">
 div.notification-item
-  svg-icon(:name="icon" width="30" height="30")
-  p {{ message }}
-  el-button(
-    @click="emitClickEvent"
-    size="mini"
-  ) View
+  svg-icon(:name="icon" width="25" height="25")
+  p {{ message }} 
+    el-button(
+      @click="emitClickEvent"
+      size="mini"
+    ) View
 </template>
 
 <script lang="ts">
@@ -30,9 +30,10 @@ export default class extends Vue {
 .svg-icon {
   background: $primary;
   color: $tertiary;
-  padding: 2.5px;
-  border-radius: 50%;
+  padding: 5px;
+  border-radius: 25%;
 }
+
 p {
   display: inline;
   margin-left: 5px;
