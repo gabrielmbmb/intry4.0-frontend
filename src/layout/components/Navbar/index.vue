@@ -12,10 +12,11 @@
         el-badge(
           :value="numNotifications"
           :hidden="numNotifications === 0"
+          :max="99"
         ).custom-badge
           i.el-icon-bell
         el-dropdown-menu
-          div(v-if="notifications.length > 0")
+          div(v-if="notifications.length > 0").dropdown-item-container
             el-dropdown-item(
               v-for="notification in notifications"
               :key="notification.id"
@@ -27,7 +28,7 @@
                 @buttonClick="notificationButtonClicked(notification.id)"
               )
           div(v-else)
-            el-dropdown-item(:disabled="true") There are no new notifications
+            el-dropdown-item(disabled) There are no new notifications
       el-dropdown(trigger="click").right-menu-item.hover-effect
         div
           svg-icon(name="user")
@@ -91,6 +92,19 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.dropdown-item-container {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.custom-badge::v-deep {
+  margin-right: 5px;
+  sup {
+    top: auto;
+    bottom: 15px;
+  }
+}
+
 .navbar {
   height: 50px;
   overflow: hidden;
