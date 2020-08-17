@@ -3,11 +3,13 @@ div
   el-table(
     :data="predictions"
     :max-height="tableMaxHeight || 'auto'"
-    :row-class-name="tableRowClassName"
     :default-sort="{prop: 'predictions_received_on', order: 'descending'}"
+    stripe
     @selection-change="handleSelection"
+    @row-click="onRowClick"
   )
     el-table-column(
+      prop="selection"
       type="selection"
       width="50"
     )
@@ -20,8 +22,13 @@ div
     el-table-column(
       prop="datamodel"
       label="Datamodel"
+      width="150"
+      sortable
     )
-      template(slot-scope="scope")
+      template(
+        v-if="datamodels.length > 0"
+        slot-scope="scope"
+      )
         router-link(
           :to="`/models/${datamodelOfPrediction(scope.row.datamodel).id}/detail`"
         ) {{ datamodelOfPrediction(scope.row.datamodel).name }}
@@ -40,7 +47,9 @@ div
       :sortable="true"
     )
       template(slot-scope="scope")
-        p {{ scope.row.predictions_received_on | formatDate }}
+        p(v-if="scope.row.predictions_received_on")
+          | {{ scope.row.predictions_received_on | formatDate }}
+        p(v-else) Prediction not received yet
     el-table-column(
       prop="data"
       label="Data"
@@ -56,7 +65,11 @@ div
     el-table-column(
       prop="user_ack"
       label="User ACK"
+      width="200"
+      sortable
     )
+      template(slot-scope="scope")
+        p {{ scope.row.user_ack || 'No ACK' }}
   div.table-buttons
     el-popconfirm(
       :title="`Are you sure you want to ACK the ${this.selectedPredictions.length} selected predictions?`"
@@ -99,9 +112,19 @@ export default class extends Vue {
   public selectedPredictions: { [key: string]: any }[] = [];
 
   public datamodelOfPrediction(id: string) {
-    return this.datamodels.find(
-      (datamodel: { [key: string]: any }) => datamodel.id === id
-    );
+    if (this.datamodels) {
+      const datamodelOfPrediction = this.datamodels.find(
+        (datamodel: { [key: string]: any }) => datamodel.id === id
+      );
+      if (datamodelOfPrediction) {
+        return datamodelOfPrediction;
+      }
+    }
+
+    return {
+      name: '',
+      id: '',
+    };
   }
 
   public handleSelection(selected: { [key: string]: any }[]) {
@@ -119,11 +142,18 @@ export default class extends Vue {
     });
     Promise.all(promises).then(() => {
       this.$emit('updatePredictions');
+      this.$notify({
+        title: 'Predictions',
+        message: `The ${this.selectedPredictions.length} selected predictions has been ACKed`,
+        type: 'success',
+      });
     });
   }
 
-  public tableRowClassName() {
-    //
+  public onRowClick(row: any, column: any) {
+    if (column.property !== 'selection') {
+      this.$router.push(`/prediction/${row.id}`);
+    }
   }
 }
 </script>
