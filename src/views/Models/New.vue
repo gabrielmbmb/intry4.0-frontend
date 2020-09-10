@@ -706,7 +706,7 @@ export default class NewModel extends Vue {
   }
 
   public deactivated() {
-    this.datamodelForm.resetFields();
+    this.resetForm();
   }
 
   public getEntities() {
@@ -786,6 +786,12 @@ export default class NewModel extends Vue {
     }
   }
 
+  public resetForm() {
+    this.datamodelForm.resetFields();
+    this.selectedModels = [];
+    this.attributes = [];
+  }
+
   public createDatamodel() {
     this.datamodelForm.validate((valid: boolean) => {
       if (valid) {
@@ -814,7 +820,7 @@ export default class NewModel extends Vue {
               type: 'success',
             });
             EventBus.$emit('update-models');
-            this.datamodelForm.resetFields();
+            this.resetForm();
             this.$router.push('/models/index');
           })
           .catch((err) => {

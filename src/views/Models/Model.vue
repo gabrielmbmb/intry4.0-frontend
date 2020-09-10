@@ -82,7 +82,10 @@ div
             el-col
               p
                 strong Attributes:
-                  pre {{ datamodel.plcs | prettify }}
+                  ul(v-for="(sensors, plc) in datamodel.plcs")
+                    li {{ plc }}:
+                    ul(v-for="sensor in sensors")
+                      li {{ sensor }}
 
           hr
 

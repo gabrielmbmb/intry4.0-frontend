@@ -125,6 +125,19 @@ export default class extends Vue {
   color: $tertiary !important;
 }
 
+.el-submenu {
+  &.is-active {
+    .el-submenu__title {
+      color: $tertiary !important;
+    }
+  }
+}
+
+.el-submenu .el-submenu__title,
+.submenu-title-noDropdown {
+  font-size: 20px;
+}
+
 .simple-mode {
   &.first-level {
     .submenu-title-noDropdown {
