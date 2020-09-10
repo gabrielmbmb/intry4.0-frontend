@@ -12,21 +12,59 @@ div.app-container
       strong Prediction created on:
       |  {{ prediction.created_on | dateFormatting }}
     li
-      strong Data:
-        pre {{ prediction.data | prettify }}
-    li
-      strong Dates:
-        pre {{ prediction.dates | prettify }}
+      strong Prediction data:
+      ul
+        li(
+          v-for="column in prediction.data['columns']",
+          key="column"
+        )
+          strong {{ column }}:
+          ul
+            li Value: {{ prediction.data['data'][0][prediction.data['columns'].indexOf(column)] }}
+            li Received at: {{ prediction.dates[column] | dateFormatting }}
     li
       strong Predictions received on:
       |  {{ prediction.predictions_received_on | dateFormatting }}
     li
       strong Predictions:
-        pre(v-if="prediction.predictions") {{ prediction.predictions | prettify }}
-        p(v-else) Not received yet
+      ul(v-if="Object.keys(prediction.predictions).length > 0")
+        div(v-if="'pca_mahalanobis' in prediction.predictions")
+          li
+            strong PCA + Mahalanobis: 
+            | {{ prediction.predictions.pca_mahalanobis }}
+        div(v-if="'autoencoder' in prediction.predictions")
+          li
+            strong Autoencoder: 
+            | {{ prediction.predictions.autoencoder }}
+        div(v-if="'kmeans' in prediction.predictions")
+          li
+            strong k-Means: 
+            | {{ prediction.predictions.kmeans }}
+        div(v-if="'one_class_svm' in prediction.predictions")
+          li
+            strong One Class SVM: 
+            | {{ prediction.predictions.one_class_svm }}
+        div(v-if="'isolation_forest' in prediction.predictions")
+          li
+            strong Isolation Forest: 
+            | {{ prediction.predictions.isolation_forest }}
+        div(v-if="'local_outlier_factor' in prediction.predictions")
+          li
+            strong Local Outlier Factor: 
+            | {{ prediction.predictions.local_outlier_factor }}
+        div(v-if="'gaussian_distribution' in prediction.predictions")
+          li
+            strong Gaussian Distribution: 
+            | {{ prediction.predictions.gaussian_distribution }}
+        div(v-if="'knearest_neighbors' in prediction.predictions")
+          li
+            strong k-Nearest Neighbors: 
+            | {{ prediction.predictions.knearest_neighbors }}
+      div(v-else)
+        p Predictions not received yet
     li
       strong User ACK:
-      |  {{ prediction.ack_user || 'no ACK' }}
+      |  {{ prediction.user_ack || 'no ACK' }}
     el-popconfirm(
       :title="`Are you sure you want to ACK this prediction?`"
       confirmButtonText="Yes"

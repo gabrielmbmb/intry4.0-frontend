@@ -1,5 +1,18 @@
 <template lang="pug">
 div
+  div.table-buttons
+    el-popconfirm(
+      :title="`Are you sure you want to ACK the ${this.selectedPredictions.length} selected predictions?`"
+      confirmButtonText="Yes"
+      cancelButtonText="No"
+      confirmButtonType="success"
+      @onConfirm="ackSelectedPredictions"
+    )
+      el-button(
+        type="primary"
+        slot="reference"
+        :disabled="this.selectedPredictions.length <= 0"
+      ) ACK
   el-table(
     :data="predictions"
     :max-height="tableMaxHeight || 'auto'"
@@ -42,7 +55,7 @@ div
         p {{ scope.row.created_on | formatDate }}
     el-table-column(
       prop="predictions_received_on"
-      label="Predictions received on"
+      label="Predictions received at"
       width="220"
       :sortable="true"
     )
@@ -61,7 +74,45 @@ div
       label="Predictions"
     )
       template(slot-scope="scope")
-        pre {{ scope.row.predictions | prettify }}
+        div(
+          v-if="Object.keys(scope.row.predictions).length > 0",
+          style="margin-left: 10px;"
+        )
+          ul
+          div(v-if="'pca_mahalanobis' in scope.row.predictions")
+            li
+              strong PCA + Mahalanobis: 
+              | {{ scope.row.predictions.pca_mahalanobis }}
+          div(v-if="'autoencoder' in scope.row.predictions")
+            li
+              strong Autoencoder: 
+              | {{ scope.row.predictions.autoencoder }}
+          div(v-if="'kmeans' in scope.row.predictions")
+            li
+              strong k-Means: 
+              | {{ scope.row.predictions.kmeans }}
+          div(v-if="'one_class_svm' in scope.row.predictions")
+            li
+              strong One Class SVM: 
+              | {{ scope.row.predictions.one_class_svm }}
+          div(v-if="'isolation_forest' in scope.row.predictions")
+            li
+              strong Isolation Forest: 
+              | {{ scope.row.predictions.isolation_forest }}
+          div(v-if="'local_outlier_factor' in scope.row.predictions")
+            li
+              strong Local Outlier Factor: 
+              | {{ scope.row.predictions.local_outlier_factor }}
+          div(v-if="'gaussian_distribution' in scope.row.predictions")
+            li
+              strong Gaussian Distribution: 
+              | {{ scope.row.predictions.gaussian_distribution }}
+          div(v-if="'knearest_neighbors' in scope.row.predictions")
+            li
+              strong k-Nearest Neighbors: 
+              | {{ scope.row.predictions.knearest_neighbors }}
+        div(v-else)
+          p Predictions not received yet
     el-table-column(
       prop="user_ack"
       label="User ACK"
@@ -70,18 +121,6 @@ div
     )
       template(slot-scope="scope")
         p {{ scope.row.user_ack || 'No ACK' }}
-  div.table-buttons
-    el-popconfirm(
-      :title="`Are you sure you want to ACK the ${this.selectedPredictions.length} selected predictions?`"
-      confirmButtonText="Yes"
-      cancelButtonText="No"
-      confirmButtonType="success"
-      @onConfirm="ackSelectedPredictions"
-    )
-      el-button(
-        slot="reference"
-        :disabled="this.selectedPredictions.length <= 0"
-      ) ACK
 </template>
 
 <script lang="ts">
