@@ -63,10 +63,10 @@ div.app-container
       div(v-else)
         p Predictions not received yet
     li
-      strong User ACK:
+      strong User acknowledge:
       |  {{ prediction.user_ack || 'no ACK' }}
     el-popconfirm(
-      :title="`Are you sure you want to ACK this prediction?`"
+      :title="`Are you sure you want to acknowledge this prediction?`"
       confirmButtonText="Yes"
       cancelButtonText="No"
       confirmButtonType="success"
@@ -75,7 +75,7 @@ div.app-container
       el-button(
         type="primary"
         slot="reference"
-      ) ACK
+      ) Acknowledge prediction
 </template>
 
 <script lang="ts">

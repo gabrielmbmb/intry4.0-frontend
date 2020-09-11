@@ -2,7 +2,7 @@
 div
   div.table-buttons
     el-popconfirm(
-      :title="`Are you sure you want to ACK the ${this.selectedPredictions.length} selected predictions?`"
+      :title="`Are you sure you want to acknowledge the ${this.selectedPredictions.length} selected predictions?`"
       confirmButtonText="Yes"
       cancelButtonText="No"
       confirmButtonType="success"
@@ -12,7 +12,7 @@ div
         type="primary"
         slot="reference"
         :disabled="this.selectedPredictions.length <= 0"
-      ) ACK
+      ) Acknowledge selected predictions
   el-table(
     :data="predictions"
     :max-height="tableMaxHeight || 'auto'"
@@ -48,7 +48,7 @@ div
     el-table-column(
       prop="created_on"
       label="Created on"
-      width="220"
+      width="150"
       :sortable="true"
     )
       template(slot-scope="scope")
@@ -56,7 +56,7 @@ div
     el-table-column(
       prop="predictions_received_on"
       label="Predictions received at"
-      width="220"
+      width="205"
       :sortable="true"
     )
       template(slot-scope="scope")
@@ -66,9 +66,16 @@ div
     el-table-column(
       prop="data"
       label="Data"
+      width="420"
     )
       template(slot-scope="scope")
-        pre {{ scope.row.data.data[0] | prettify }}
+        ul(style="margin-left: 10px; padding-left: 0;")
+          li(
+           v-for="column in scope.row.data['columns']"
+           :key="column"
+          )
+            strong {{ column }}:
+            |  {{ scope.row.data['data'][0][scope.row.data['columns'].indexOf(column)] }}
     el-table-column(
       prop="predictions"
       label="Predictions"
@@ -115,8 +122,8 @@ div
           p Predictions not received yet
     el-table-column(
       prop="user_ack"
-      label="User ACK"
-      width="200"
+      label="User acknowledge"
+      width="180"
       sortable
     )
       template(slot-scope="scope")
@@ -190,7 +197,7 @@ export default class extends Vue {
   }
 
   public onRowClick(row: any, column: any) {
-    if (column.property !== 'selection') {
+    if (!['selection', 'datamodel'].includes(column.property)) {
       this.$router.push(`/prediction/${row.id}`);
     }
   }
