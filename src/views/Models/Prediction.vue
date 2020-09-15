@@ -1,77 +1,64 @@
 <template lang="pug">
-div.app-container
-  h2 Prediction
-  ul(v-if="prediction")
-    li
-      strong ID:
-      |  {{ prediction.id  }}
-    li
-      strong Datamodel:
-        router-link(:to="`/models/${datamodel.id}/detail`")  {{ datamodel.name }}
-    li
-      strong Prediction created on:
-      |  {{ prediction.created_on | dateFormatting }}
-    li
-      strong Prediction data:
-      ul
-        li(
-          v-for="column in prediction.data['columns']",
-          key="column"
-        )
-          strong {{ column }}:
+div
+  el-row.box-row
+    el-col.aligned
+      h2 Prediction of {{ datamodel.name }} box of models
+  el-row.box-row
+    el-col(:span="12")
+      el-row.aligned
+        el-divider
+          h3 Prediction general info
+      el-row
+        p  
+          strong ID:
+          |  {{  prediction.id }}
+        p
+          strong Box of models:
+            router-link(:to="`/models/${datamodel.id}/detail`")  {{ datamodel.name }}
+        p
+          strong Prediction request created on:
+          |  {{  prediction.created_on | dateFormatting }}
+        p
+          strong Values used in the prediction:
           ul
-            li Value: {{ prediction.data['data'][0][prediction.data['columns'].indexOf(column)] }}
-            li Received at: {{ prediction.dates[column] | dateFormatting }}
-    li
-      strong Predictions received on:
-      |  {{ prediction.predictions_received_on | dateFormatting }}
-    li
-      strong Predictions:
-      ul(v-if="Object.keys(prediction.predictions).length > 0")
-        div(v-if="'pca_mahalanobis' in prediction.predictions")
-          li
-            strong PCA + Mahalanobis: 
-            | {{ prediction.predictions.pca_mahalanobis }}
-        div(v-if="'autoencoder' in prediction.predictions")
-          li
-            strong Autoencoder: 
-            | {{ prediction.predictions.autoencoder }}
-        div(v-if="'kmeans' in prediction.predictions")
-          li
-            strong k-Means: 
-            | {{ prediction.predictions.kmeans }}
-        div(v-if="'one_class_svm' in prediction.predictions")
-          li
-            strong One Class SVM: 
-            | {{ prediction.predictions.one_class_svm }}
-        div(v-if="'isolation_forest' in prediction.predictions")
-          li
-            strong Isolation Forest: 
-            | {{ prediction.predictions.isolation_forest }}
-        div(v-if="'local_outlier_factor' in prediction.predictions")
-          li
-            strong Local Outlier Factor: 
-            | {{ prediction.predictions.local_outlier_factor }}
-        div(v-if="'gaussian_distribution' in prediction.predictions")
-          li
-            strong Gaussian Distribution: 
-            | {{ prediction.predictions.gaussian_distribution }}
-        div(v-if="'knearest_neighbors' in prediction.predictions")
-          li
-            strong k-Nearest Neighbors: 
-            | {{ prediction.predictions.knearest_neighbors }}
-      div(v-else)
-        p Predictions not received yet
-    li
+            li(
+              v-for="column in prediction.data['columns']",
+              key="column"
+            )
+              strong {{ column }}:
+              ul
+                li Value: {{ prediction.data['data'][0][prediction.data['columns'].indexOf(column)] }}
+                li Received at: {{ prediction.dates[column] | dateFormatting }}
+
+    el-col(:span="12")
+      el-row.aligned
+        el-divider
+          h3 Predictions 
+      el-row
+        strong Predictions received on:
+        |  {{ prediction.predictions_received_on | dateFormatting }}
+        el-divider
+          h3 Results
+      el-row
+        ul(v-if="Object.keys(prediction.predictions).length > 0")
+          li(
+            v-for="model in Object.keys(prediction.predictions)"
+            :key="model"
+          )
+            strong {{ MODEL_NAME[model] }}:
+            |  {{ prediction.predictions[model] ? 'anomaly': 'not anomaly' }} 
+            i(:class="prediction.predictions[model] ? 'el-icon-error' : 'el-icon-success'")
+
+    // li
       strong User acknowledge:
       |  {{ prediction.user_ack || 'no ACK' }}
-    el-popconfirm(
+    //el-popconfirm(
       :title="`Are you sure you want to acknowledge this prediction?`"
       confirmButtonText="Yes"
       cancelButtonText="No"
       confirmButtonType="success"
       @onConfirm="ackPrediction"
-    )
+    //)
       el-button(
         type="primary"
         slot="reference"
@@ -97,6 +84,17 @@ import { AuthModule } from '../../store/modules/auth';
   },
 })
 export default class Prediction extends Vue {
+  public MODEL_NAME: { [key: string]: string } = {
+    pca_mahalanobis: 'PCA + Mahalanobis',
+    autoencoder: 'Autoencoder',
+    kmeans: 'K-Means',
+    one_class_svm: 'One Class SVM',
+    isolation_forest: 'Isolation Forest',
+    knearest_neighbors: 'k-Nearest Neighbors',
+    gaussian_distribution: 'Gaussian Distribution',
+    local_outlier_factor: 'Local Outlier Factor',
+  };
+
   public created() {
     DatamodelModule.getDatamodels();
     DatamodelModule.getPredictions();
@@ -129,3 +127,19 @@ export default class Prediction extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.aligned {
+  text-align: center;
+}
+
+.el-icon-success,
+.el-icon-circle-check {
+  color: green;
+}
+
+.el-icon-error,
+.el-icon-circle-close {
+  color: red;
+}
+</style>

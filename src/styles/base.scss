@@ -56,6 +56,34 @@ h3 {
   }
 }
 
+.box-row {
+  margin: 20px 20px 10px 20px;
+  & > .el-col {
+    padding: 20px;
+    box-shadow: 0px 0px 20px 0px rgba(0, 21, 41, 0.2);
+
+    &:first-child {
+      margin-right: 12.5px;
+      width: calc(50% - 12.5px);
+    }
+
+    &:last-child {
+      margin-left: 12.5px;
+      width: calc(50% - 12.5px);
+    }
+
+    &:only-child {
+      margin-left: 0;
+      margin-right: 0;
+      width: 100%;
+    }
+  }
+}
+
+.box-row:first-child {
+  margin: 20px 20px 10px 20px;
+}
+
 @media only screen and (max-width: 768px) {
   .app-container {
     padding: 5px;

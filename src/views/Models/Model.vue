@@ -7,7 +7,8 @@ div
   el-row.box-row
     el-col(:span="12")
       el-row.aligned
-        h3 Model general information
+        el-divider
+          h3 Model general information
       el-row
         // Blackbox general info & progress
         el-col
@@ -30,7 +31,7 @@ div
                     i(v-else-if="taskStatus.state === 'PROGRESS'").el-icon-loading
                     i(v-else).el-icon-error
 
-          hr
+          el-divider
 
           // Info
           el-row
@@ -87,7 +88,8 @@ div
                     ul(v-for="sensor in sensors")
                       li {{ sensor }}
 
-          hr
+          el-divider
+            h3 Actions
 
           el-row.centered-row
             el-col(style="padding-top: 20px;")
@@ -115,11 +117,16 @@ div
 
     el-col(:span="12")
       el-row.aligned
-        h3 Model parameters
+        el-divider
+          h3 Model parameters
       el-row
         el-collapse(v-model="collapseActive" accordion)
           // PCA Mahalanobis
-          el-collapse-item(title="PCA Mahalanobis" name="pca_mahalanobis")
+          el-collapse-item(
+            v-if="datamodel.pca_mahalanobis"
+            title="PCA Mahalanobis" 
+            name="pca_mahalanobis"
+          )
             el-row
               el-col(:span="24")
                 p
@@ -127,7 +134,11 @@ div
                   |  {{ datamodel.n_components }}
 
           // Autoencoder
-          el-collapse-item(title="Autoencoder" name="autoencoder")
+          el-collapse-item(
+            v-if="datamodel.autoencoder"
+            title="Autoencoder"
+            name="autoencoder"
+          )
             el-row
               el-col(:span="4")
                 p
@@ -172,7 +183,11 @@ div
                   |  {{ datamodel.early_stopping }}
 
           // K-Means
-          el-collapse-item(title="k-Means" name="kmeans")
+          el-collapse-item(
+            v-if="datamodel.kmeans"
+            title="k-Means" 
+            name="kmeans"
+          )
             el-row
               el-col(:span="4")
                 p
@@ -184,7 +199,11 @@ div
                   |  {{ datamodel.max_cluster_elbow }}
 
           // One Class SVM
-          el-collapse-item(title="One Class SVM" name="ocsvm")
+          el-collapse-item(
+            v-if="datamodel.ocsvm"
+            title="One Class SVM" 
+            name="ocsvm"
+          )
             el-row
               el-col(:span="4")
                 p
@@ -217,7 +236,11 @@ div
                   |  {{ datamodel.cache_size }}
 
           // Gaussian Distribution
-          el-collapse-item(title="Gaussian Distribution" name="gaussian_distribution")
+          el-collapse-item(
+            v-if="datamodel.gaussian_distribution"
+            title="Gaussian Distribution" 
+            name="gaussian_distribution"
+          )
             el-row
               el-col(:span="4")
                 p
@@ -225,7 +248,11 @@ div
                   |  {{ datamodel.epsilon_candidates }}
 
           // Isolation Forest
-          el-collapse-item(title="Isolation Forest" name="isolation_forest")
+          el-collapse-item(
+            v-if="datamodel.isolation_forest"
+            title="Isolation Forest" 
+            name="isolation_forest"
+          )
             el-row
               el-col(:span="4")
                 p
@@ -241,7 +268,11 @@ div
                   |  {{ datamodel.bootstrap }}
 
           // Local Outlier Factor
-          el-collapse-item(title="Local Outlier Factor" name="lof")
+          el-collapse-item(
+            v-if="datamodel.lof"
+            title="Local Outlier Factor" 
+            name="lof"
+          )
             el-col(:span="4")
               p
                 strong n_neighbors:
@@ -264,7 +295,11 @@ div
                 |  {{ datamodel.p_lof }}
 
           // k-Nearest Neighbors
-          el-collapse-item(title="k-Nearest Neighbors" name="knn")
+          el-collapse-item(
+            v-if="datamodel.knn"
+            title="k-Nearest Neighbors"
+            name="knn"
+          )
             el-row
               el-col(:span="4")
                 p
@@ -444,34 +479,6 @@ h2 {
 
 hr {
   margin: 0 10px 0 10px;
-}
-
-.box-row {
-  margin: 20px 20px 10px 20px;
-  & > .el-col {
-    padding: 20px;
-    box-shadow: 0px 0px 20px 0px rgba(0, 21, 41, 0.2);
-
-    &:first-child {
-      margin-right: 12.5px;
-      width: calc(50% - 12.5px);
-    }
-
-    &:last-child {
-      margin-left: 12.5px;
-      width: calc(50% - 12.5px);
-    }
-
-    &:only-child {
-      margin-left: 0;
-      margin-right: 0;
-      width: 100%;
-    }
-  }
-}
-
-.box-row:first-child {
-  margin: 20px 20px 10px 20px;
 }
 
 .aligned {
