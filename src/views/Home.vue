@@ -1,7 +1,7 @@
 <template lang="pug">
   div.app-container
     div.predictions
-      h3 Predictions from all models
+      h3 Predictions from all box of models
       PredictionTable(
         :predictions="predictions"
         :datamodels="datamodels"

@@ -29,6 +29,9 @@ div
               ul
                 li Value: {{ prediction.data['data'][0][prediction.data['columns'].indexOf(column)] }}
                 li Received at: {{ prediction.dates[column] | dateFormatting }}
+        p(v-if="prediction.user_ack")
+          strong Acknowledge by user:
+          |  {{ prediction.user_ack }}
 
     el-col(:span="12")
       el-row.aligned
@@ -37,9 +40,9 @@ div
       el-row
         strong Predictions received on:
         |  {{ prediction.predictions_received_on | dateFormatting }}
+      el-row
         el-divider
           h3 Results
-      el-row
         ul(v-if="Object.keys(prediction.predictions).length > 0")
           li(
             v-for="model in Object.keys(prediction.predictions)"
@@ -48,21 +51,21 @@ div
             strong {{ MODEL_NAME[model] }}:
             |  {{ prediction.predictions[model] ? 'anomaly': 'not anomaly' }} 
             i(:class="prediction.predictions[model] ? 'el-icon-error' : 'el-icon-success'")
-
-    // li
-      strong User acknowledge:
-      |  {{ prediction.user_ack || 'no ACK' }}
-    //el-popconfirm(
-      :title="`Are you sure you want to acknowledge this prediction?`"
-      confirmButtonText="Yes"
-      cancelButtonText="No"
-      confirmButtonType="success"
-      @onConfirm="ackPrediction"
-    //)
-      el-button(
-        type="primary"
-        slot="reference"
-      ) Acknowledge prediction
+      el-row
+        el-divider
+          h3 Actions
+      el-row.aligned
+        el-popconfirm(
+          :title="`Are you sure you want to acknowledge this prediction?`"
+          confirmButtonText="Yes"
+          cancelButtonText="No"
+          confirmButtonType="success"
+          @onConfirm="ackPrediction"
+        )
+          el-button(
+            type="primary"
+            slot="reference"
+          ) Acknowledge prediction
 </template>
 
 <script lang="ts">

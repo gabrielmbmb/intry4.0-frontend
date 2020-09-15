@@ -10,7 +10,7 @@
       size="small"
     )
       el-row
-        el-form-item(label="Model name" prop="name")
+        el-form-item(label="Box of models name" prop="name")
           el-input(
             v-model="datamodel.name"
             placeholder="Blackbox name..."
@@ -447,7 +447,7 @@
         el-button(
           :loading="datamodelIsBeingCreated"
           @click="createDatamodel"
-        ).create-button Create datamodel
+        ).create-button Create box of models
 
 </template>
 

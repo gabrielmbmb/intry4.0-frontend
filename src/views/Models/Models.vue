@@ -1,6 +1,6 @@
 <template lang="pug">
 div.app-container
-  h2 Anomaly Detection Models
+  h2 Anomaly Detection Box of Models
   el-row(:gutter="20")
     el-col(:span="24")
       el-table(
